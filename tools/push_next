@@ -8,4 +8,4 @@ make
 # Upload release to S3
 echo "Uploading 'next' to S3" >&2
 [ -n "$S3CFG" ] && S3ARGS="-c $S3CFG"
-s3cmd $S3ARGS --acl-public sync pkg/*.{js,css} "s3://assets.annotateit.org/annotator/next/"
+s3cmd $S3ARGS --acl-public sync pkg/*.{js,css,map} "s3://assets.annotateit.org/annotator/next/"
