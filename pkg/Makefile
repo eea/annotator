@@ -4,6 +4,7 @@ SHELL := /bin/bash
 PATH := $(shell npm bin):$(PATH)
 
 ANNOTATOR=\
+	preamble \
 	xpath.coffee \
 	util.coffee \
 	console.coffee \
@@ -60,34 +61,23 @@ plugins: $(addprefix annotator.,$(PLUGIN_NAMES:.coffee=.min.js))
 
 annotator-full: annotator-full.min.js
 
-ANNOTATOR_MAPS=$(addprefix ../lib/, $(addsuffix .map, $(basename $(ANNOTATOR))))
+.FORCE:
+preamble: .FORCE
+	@../tools/preamble >$@
 
 annotator.js: $(ANNOTATOR)
-	@../tools/preamble > _preamble.coffee
-	@coffee -mcb _preamble.coffee
-	@mapcat _preamble.map $(ANNOTATOR_MAPS) -m annotator.map -j annotator.js
-	@rm _preamble.*
-
-ANNOTATOR_FULL_MAPS=$(addprefix ../lib/, $(addsuffix .map, $(basename $(ANNOTATOR_FULL))))
+	@coffee -m -j $@ -c $^
 
 annotator-full.js: $(ANNOTATOR_FULL)
-	@../tools/preamble > _preamble.coffee
-	@coffee -mcb _preamble.coffee
-	@mapcat _preamble.map $(ANNOTATOR_FULL_MAPS) -m annotator-full.map -j annotator-full.js
-	@rm _preamble.*
+	@coffee -m -j $@ -c $^
 
 annotator.css: ../css/annotator.css
 	@../tools/data_uri_ify <../css/annotator.css >annotator.css
 
 bookmarklet: annotator-bookmarklet.min.js annotator.min.css bookmarklet.min.js
 
-BOOKMARKLET_MAPS=$(addprefix ../lib/, $(addsuffix .map, $(basename $(BOOKMARKLET))))
-
 annotator-bookmarklet.js: $(BOOKMARKLET)
-	@../tools/preamble > _preamble.coffee
-	@coffee -mcb _preamble.coffee
-	@mapcat _preamble.map $(BOOKMARKLET_MAPS) -m annotator-bookmarklet.map -j annotator-bookmarklet.js
-	@rm _preamble.*
+	@coffee -m -j $@ -c $^
 
 BOOKMARKLET_CFG_DEP=$(shell [ -f $(BOOKMARKLET_CFG) ] && echo $(BOOKMARKLET_CFG))
 bookmarklet.js: $(BOOKMARKLET_SRC) $(BOOKMARKLET_CFG_DEP)
