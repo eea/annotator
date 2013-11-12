@@ -20,38 +20,28 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
 
   # Add a reply button to the viewer widget's controls span
   addReplyButton: (viewer, annotations) ->
-    # Annotations are displayed in the order they they were entered into the viewer
+    listing = @annotator.element.find('.annotator-annotation.annotator-item')
+    for item, idx in listing
+      item = $(item)
+      replies = annotations[idx].replies or []
 
-    annotator_listing = @annotator.element.find('.annotator-annotation.annotator-item')
-    for l, i in annotator_listing
-      l = $(l)
-
-      replies = []
-      # sort the annotations by creation time
-      unsorted = @annotator.dumpAnnotations()
-      sorted = unsorted.sort (a,b) ->
-        return if a.created.toUpperCase() >= b.created.toUpperCase() then 1 else -1
-
-      for ann in sorted.reverse()
-        if ann.parent?
-          if ann.parent == annotations[i].id
-            replies.push ann.reply
       if replies.length > 0
-        l.append('''<div style='padding:5px'> <span> Replies </span></div>
+        item.append('''
+          <div style='padding:5px' class='annotator-replies-header'> <span> Replies </span></div>
             <div id="Replies">
+              <li class="Replies">
+              </li>
+            </div>''')
 
-          <li class="Replies">
-          </li></div>''')
       if replies.length > 0
         replylist = @annotator.element.find('.Replies')
-
-        # write the replies into the correct places of the viewer. This algorithm handles overlapping annotations
-        for reply in replies.reverse()
-          $(replylist[i]).append('''<div class='reply'>
-            <span class='replyuser'>''' + reply.user + '''</span><button TITLE="Delete" class='annotator-delete-reply'>x</button><div class='replytext'>''' + reply.reply + '''</div></div>''')
+        for reply in replies
+          username = if (reply.user.name and reply.user.id) then ('@' + reply.user.id + ' (' + reply.user.name + ')') else reply.user
+          $(replylist[idx]).append('''<div class='reply'>
+            <span class='replyuser'>''' + username + '''</span><button TITLE="Delete" class='annotator-delete-reply'>x</button><div class='replytext'>''' + reply.reply + '''</div></div>''')
 
       # Add the textarea
-      l.append('''<div class='replybox'>
+      item.append('''<div class='replybox'>
           <textarea class="replyentry" placeholder="Reply to this annotation..."></textarea>
           ''')
 
@@ -68,29 +58,15 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
     reply = textarea.val()
     if reply != ''
       replyObject = @getReplyObject()
-      #console.log( @annotator.plugins.Permissions)
-      if @annotator.plugins.Permissions and @annotator.plugins.Permissions.user
-        replyObject.user = @annotator.plugins.Permissions.user.name
-      else
-        replyObject.user = "Anonymous"
-
       replyObject.reply = reply
 
       item = $(event.target).parents('.annotator-annotation')
+      new_annotation = item.data('annotation')
+      if !new_annotation.replies
+        new_annotation.replies = []
+      new_annotation.replies.push(replyObject)
 
-      # make a new annotation object in which we can save the reply.
-      new_annotation = @annotator.createAnnotation()
-
-      new_annotation.ranges = []
-      new_annotation.parent = item.data('annotation').id
-      new_annotation.highlights = item.data('annotation').highlights
-      replyObject = @getReplyObject()
-      replyObject.user = new_annotation.user
-      replyObject.reply = reply
-      new_annotation.reply = replyObject
-
-      new_annotation = @annotator.setupAnnotation(new_annotation)
-      console.log('setup complete', new_annotation)
+      new_annotation = @annotator.updateAnnotation(new_annotation)
 
       # hide the viewer
       @annotator.viewer.hide()
@@ -116,7 +92,6 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
 
   getReplyObject: ->
     replyObject =
-        user: "anonymous"
         reply: ""
 
     replyObject
