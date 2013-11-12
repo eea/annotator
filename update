@@ -1,0 +1,5 @@
+#!/bin/bash
+rm -rf pkg
+git co pkg
+./tools/build
+make
