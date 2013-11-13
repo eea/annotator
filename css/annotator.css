@@ -249,13 +249,35 @@
 	opacity: 1;
 }
 
-.annotator-replies-header {
-	text-align: center;
+.annotator-item .replybox {
 	border-top: none;
+}
+
+.annotator-item .annotator-replies-header {
+	border-top: none;
+	border-bottom: 1px solid #eee;
 }
 
 .annotator-delete-reply {
 	float: right;
+}
+
+.annotator-item .annotator-user {
+  text-align: right;
+  border-top: none;
+}
+
+#Replies {
+  border: none;
+}
+
+.annotator-item .reply {
+  border-top: none;
+  border-bottom: 1px solid #eee;
+}
+
+.annotator-viewer  .annotator-item .replytext {
+  padding-top: 0;
 }
 
 .annotator-delete-reply,

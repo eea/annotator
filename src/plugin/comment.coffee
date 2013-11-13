@@ -18,7 +18,9 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
   pluginInit: ->
     return unless Annotator.supported()
 
+  #
   # Add a reply button to the viewer widget's controls span
+  #
   addReplyButton: (viewer, annotations) ->
     listing = @annotator.element.find('.annotator-annotation.annotator-item')
     for item, idx in listing
@@ -37,22 +39,25 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
         replylist = @annotator.element.find('.Replies')
         for reply in replies
           username = if (reply.user.name and reply.user.id) then ('@' + reply.user.id + ' (' + reply.user.name + ')') else reply.user
-          $(replylist[idx]).append('''<div class='reply'>
-            <span class='replyuser'>''' + username + '''</span><button TITLE="Delete" class='annotator-delete-reply'>x</button><div class='replytext'>''' + reply.reply + '''</div></div>''')
+          div = '''<div class='reply'>'''
+          if not @annotator.options.readOnly
+              div += '''<button TITLE="Delete" class='annotator-delete-reply'>x</button>'''
+          div += '''
+              <div class='replytext'>''' + reply.reply + '''</div>
+              <div class='annotator-user replyuser'>''' + username + '''</div>
+            </div>'''
+          $(replylist[idx]).append(div)
 
       # Add the textarea
-      item.append('''<div class='replybox'>
-          <textarea class="replyentry" placeholder="Reply to this annotation..."></textarea>
-          ''')
+      if not @annotator.options.readOnly
+        item.append('''<div class='replybox'><textarea class="replyentry" placeholder="Reply to this annotation..."></textarea>''')
 
     viewer.checkOrientation()
 
-
-
+  #
   # Handle the event when the submit button is clicked
   #
   onReplyEntryClick: (event) ->
-    # get content of the textarea
     item =  $(event.target).parent().parent()
     textarea = item.find('.replyentry')
     reply = textarea.val()
@@ -73,26 +78,22 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
 
 
   deleteReply: (event) ->
-    # delete the reply
-    reply_item = $(event.target).parents('.reply')
-    parent_id = reply_item.parents('.annotator-annotation').data('annotation').id
-    reply_text = reply_item.find('.replytext')[0].innerHTML
+    item = $(event.target).parents('.reply')
+    annotation = item.parents('.annotator-annotation').data('annotation')
+    text = item.find('.replytext')[0].innerHTML
+    replies = annotation.replies or []
 
-    # now look for annotations with parent == parent_id AND reply that matches reply_text and delete them
-    for ann in @annotator.dumpAnnotations()
-      if ann.parent == parent_id
-        if ann.reply.reply == reply_text
-            #          console.log('match, ', ann)
-          ann.highlights = []
-          @annotator.deleteAnnotation(ann)
-          # remove reply from DOM
-          $(reply_item).replaceWith('')
-          break
+    for reply, idx in replies
+      if text == reply.reply
+        annotation.replies[idx].remove = true
+        item.slideUp( -> item.remove() )
 
+    annotation = @annotator.updateAnnotation(annotation)
 
   getReplyObject: ->
     replyObject =
         reply: ""
+        created: new Date().toJSON()
 
     replyObject
 
