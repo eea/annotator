@@ -146,7 +146,7 @@ class Range.BrowserRange
 
     # Look at the start
     if @startContainer.nodeType is Node.ELEMENT_NODE
-      # We are dealing with element nodes  
+      # We are dealing with element nodes
       r.start = Util.getFirstTextNodeNotBefore @startContainer.childNodes[@startOffset]
       r.startOffset = 0
     else
@@ -168,7 +168,7 @@ class Range.BrowserRange
           r.end = n
           r.endOffset = 0
 
-      unless r.end?  
+      unless r.end?
         # We need to find a text node in the previous node.
         node = @endContainer.childNodes[@endOffset - 1]
         r.end = Util.getLastTextNodeUpTo node
@@ -210,7 +210,12 @@ class Range.BrowserRange
     while nr.commonAncestor.nodeType isnt Node.ELEMENT_NODE
       nr.commonAncestor = nr.commonAncestor.parentNode
 
-    new Range.NormalizedRange(nr)
+    if not matchText
+      new Range.NormalizedRange(nr)
+    else if matchText.startsWith(nr.start.textContent.trim()) and matchText.endsWith(nr.end.textContent.trim())
+      new Range.NormalizedRange(nr)
+    else
+      throw new Range.RangeError("Exact match enabled. Couldn't find text: " + matchText)
 
   # Public: Creates a range suitable for storage.
   #
@@ -445,12 +450,8 @@ class Range.SerializedRange
         range.commonAncestorContainer = this
         return false
 
-    if not matchText
-      new Range.BrowserRange(range).normalize(root, matchText)
-    else if matchText.startsWith(range.startContainer.wholeText) and matchText.endsWith(range.endContainer.wholeText)
-      new Range.BrowserRange(range).normalize(root, matchText)
-    else
-      throw new Range.RangeError("Exact match enabled. Couldn't match text: " + matchText)
+    new Range.BrowserRange(range).normalize(root, matchText)
+
 
   # Public: Creates a range suitable for storage.
   #
