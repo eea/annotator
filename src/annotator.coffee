@@ -25,6 +25,7 @@ class Annotator extends Delegator
 
   options: # Configuration options
     readOnly: false # Start Annotator in read-only mode. No controls will be shown.
+    exactMatch: false
 
   plugins: {}
 
@@ -295,12 +296,13 @@ class Annotator extends Delegator
   # Returns the initialised annotation.
   setupAnnotation: (annotation) ->
     root = @wrapper[0]
+    matchText = if @options.exactMatch then annotation.quote else false
     annotation.ranges or= @selectedRanges
 
     normedRanges = []
     for r in annotation.ranges
       try
-        normedRanges.push(Range.sniff(r).normalize(root))
+        normedRanges.push(Range.sniff(r).normalize(root, matchText))
       catch e
         if e instanceof Range.RangeError
           this.publish('rangeNormalizeFail', [annotation, r, e])

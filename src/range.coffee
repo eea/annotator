@@ -1,3 +1,13 @@
+# Extend String capabilities
+#
+if typeof String.prototype.startsWith isnt 'function'
+  String.prototype.startsWith = (str) ->
+    this.slice(0, str.length) == str
+
+if typeof  String.prototype.endsWith isnt "function"
+  String.prototype.endsWith = (str) ->
+    this.slice(-str.length) == str;
+
 Range = {}
 
 # Public: Determines the type of Range of the provided object and returns
@@ -125,7 +135,7 @@ class Range.BrowserRange
   # textNode/textNode or elementNode/elementNode pairs.
   #
   # Returns an instance of Range.NormalizedRange
-  normalize: (root) ->
+  normalize: (root, matchText) ->
     if @tainted
       console.error(_t("You may only call normalize() once on a BrowserRange!"))
       return false
@@ -236,7 +246,7 @@ class Range.NormalizedRange
   # Public: For API consistency.
   #
   # Returns itself.
-  normalize: (root) ->
+  normalize: (root, matchText) ->
     this
 
   # Public: Limits the nodes within the NormalizedRange to those contained
@@ -364,7 +374,7 @@ class Range.SerializedRange
   # root - The root Element from which the XPaths were generated.
   #
   # Returns a NormalizedRange instance.
-  normalize: (root) ->
+  normalize: (root, matchText) ->
     range = {}
 
     for p in ['start', 'end']
@@ -435,7 +445,12 @@ class Range.SerializedRange
         range.commonAncestorContainer = this
         return false
 
-    new Range.BrowserRange(range).normalize(root)
+    if not matchText
+      new Range.BrowserRange(range).normalize(root, matchText)
+    else if matchText.startsWith(range.startContainer.wholeText) and matchText.endsWith(range.endContainer.wholeText)
+      new Range.BrowserRange(range).normalize(root, matchText)
+    else
+      throw new Range.RangeError("Exact match enabled. Couldn't match text: " + matchText)
 
   # Public: Creates a range suitable for storage.
   #
