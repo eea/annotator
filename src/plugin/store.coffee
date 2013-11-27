@@ -140,6 +140,7 @@ class Annotator.Plugin.Store extends Annotator.Plugin
         if not data.id?
           console.warn Annotator._t("Warning: No ID returned from server for annotation "), annotation
         this.updateAnnotation annotation, data
+        @annotator.publish "afterAnnotationCreated", [annotation]
       )
     else
       # This is called to update annotations created at load time with

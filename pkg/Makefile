@@ -26,7 +26,8 @@ PLUGINS=\
 	plugin/store.coffee \
 	plugin/tags.coffee \
 	plugin/unsupported.coffee \
-	plugin/comment.coffee
+	plugin/comment.coffee \
+	plugin/errata.coffee
 
 ANNOTATOR_FULL=\
 	$(ANNOTATOR) \
@@ -39,7 +40,8 @@ ANNOTATOR_FULL=\
 	plugin/markdown.coffee \
 	plugin/tags.coffee \
 	plugin/kitchensink.coffee \
-	plugin/comment.coffee
+	plugin/comment.coffee \
+	plugin/errata.coffee
 
 BOOKMARKLET=\
 	$(ANNOTATOR) \
