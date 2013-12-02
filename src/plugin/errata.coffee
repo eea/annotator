@@ -3,7 +3,7 @@ class Annotator.Plugin.Errata extends Annotator.Plugin
     'annotationsLoaded': 'annotationsLoaded'
     'afterAnnotationCreated': 'annotationCreated'
     'annotationDeleted': 'annotationDeleted'
-    'annotationUpdated': 'annotationUpdated'
+    'afterAnnotationUpdated': 'annotationUpdated'
     'rangeNormalizeFail': 'rangeNormalizeFail'
 
   options:
@@ -45,10 +45,6 @@ class Annotator.Erratum extends Delegator
   options:
     annotator: null
 
-  viewer: null
-
-  viewerHideTimer: null
-
   missing: {}
 
   constructor: (element, options) ->
@@ -56,75 +52,40 @@ class Annotator.Erratum extends Delegator
     @annotator = @options.annotator
     this
 
-  _setupViewer: ->
-    self = this
-    @viewer = new Annotator.Viewer(readOnly: @annotator.options.readOnly)
-    @viewer.hide()
-      .on("edit", @annotator.onEditAnnotation)
-      .on("delete", @annotator.onDeleteAnnotation)
-      #
-      # Comment field
-      #
-      .addField({
-        load: (field, annotation) ->
-          $(field).html(Util.escape(annotation.text))
-      })
-      #
-      # User field
-      #
-      .addField({
-        load: (field, annotation) ->
-          user = annotation.user
-          userString = if (user.name and user.id) then ('@' + user.id + ' (' + user.name + ')') else user
-          $(field).html(userString).addClass('annotator-user')
-      })
-      #
-      # Replies field
-      #
-      .addField({
-        load: (field, annotation) ->
-          replies = annotation.replies or []
-
-          if(replies.length)
-            html = $('''
-              <div style='padding:5px' class='annotator-replies-header'> <span> Replies </span></div>
-              <div id="Replies">
-                <li class="Replies"></li>
-              </div>
-            ''')
-
-            where = html.find('.Replies')
-            for reply in replies
-              user = reply.user
-              userString = if (user.name and user.id) then ('@' + user.id + ' (' + user.name + ')') else user
-              div = $('''
-                <div class="reply">
-                  <div class="replytext">''' + reply.reply + '''</div>
-                  <div class="annotator-user replyuser">''' + userString + '''</div>
-                </div>
-              ''').appendTo(where)
-
-          $(field).html(html)
-      })
-      #
-      # Append element and bind events
-      #
-      .element.appendTo(@element).bind({
-        "mouseover": -> self.clearViewerHideTimer()
-        "mouseout":  -> self.startViewerHideTimer()
-      })
-    this
-
   _setupComment: (annotation) ->
+    text = Util.escape(annotation.text)
+    user = annotation.user
+    userString = if (user.name and user.id) then ('@' + user.id + ' (' + user.name + ')') else user
+
     div = $('''
-      <div class="annotator-erratum" data-id="''' + annotation.id + '''">
+      <div class="annotator-erratum annotator-item" data-id="''' + annotation.id + '''">
         <div class="erratum-quote">''' + annotation.quote + '''</div>
+        <dl class="erratum-comment">
+          <dt class="replytext">''' + text + '''</dt>
+          <dd class="annotator-user">''' + userString + '''</dd>
+        </dl>
       </div>
     ''')
+
+    erratum = div.find('.erratum-comment').hide()
+    replies = annotation.replies or []
+    for reply in replies
+      user = reply.user
+      userString = if (user.name and user.id) then ('@' + user.id + ' (' + user.name + ')') else user
+      text = Util.escape(reply.reply)
+      comment = $('''
+        <dt class="replytext">''' + text + '''</dt>
+        <dd class="annotator-user">''' + userString + '''</dd>
+      ''')
+      comment.appendTo(erratum)
 
     missing = @missing[annotation.id]
     if missing
       div.addClass('missing')
+
+    existing = @element.find('[data-id="' + annotation.id + '"]')
+    if existing.length
+      @annotationDeleted annotation
 
     self = this
     div
@@ -141,21 +102,16 @@ class Annotator.Erratum extends Delegator
     self = this
     comment.unbind()
     comment.bind({
-      'mouseover': (evt) ->
-        self.clearViewerHideTimer()
-        data = comment.data('comment')
-        location = Util.mousePosition(evt, this)
-        self.viewer.element.css(location)
-        self.viewer.load([data])
-      'mouseout': (evt) ->
-        self.startViewerHideTimer()
       'click': (evt) ->
-        highlights = annotation.highlights
-        if highlights and highlights.length
-          scrollTop = $(highlights[0]).position().top
-          $('html,body').animate({
-            scrollTop: scrollTop
-          })
+        self.element.find('.erratum-comment').slideUp('fast')
+        comment.find('.erratum-comment').slideDown('fast')
+        if comment.parents('.fullscreen').length
+          highlights = annotation.highlights
+          if highlights and highlights.length
+            scrollTop = $(highlights[0]).position().top
+            $('html,body').animate({
+              scrollTop: scrollTop
+            })
     })
     this
 
@@ -171,7 +127,6 @@ class Annotator.Erratum extends Delegator
     @element.empty()
     for annotation in annotations.sort(compare)
       @_setupComment(annotation)
-    @_setupViewer()
     this
 
   annotationCreated: (annotation) ->
@@ -184,17 +139,9 @@ class Annotator.Erratum extends Delegator
     this
 
   annotationUpdated: (annotation) ->
-    @_reloadComment(annotation)
+    @_setupComment(annotation)
     this
 
   rangeNormalizeFail: (annotation) ->
     @missing[annotation.id] = annotation.quote
     this
-
-  clearViewerHideTimer: ->
-    clearTimeout(@viewerHideTimer)
-    @viewerHideTimer = false
-
-  startViewerHideTimer: ->
-    if not @viewerHideTimer
-      @viewerHideTimer = setTimeout @viewer.hide, 250

@@ -28,15 +28,10 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
       replies = annotations[idx].replies or []
 
       if replies.length > 0
-        item.append('''
-          <div style='padding:5px' class='annotator-replies-header'> <span> Replies </span></div>
-            <div id="Replies">
-              <li class="Replies">
-              </li>
-            </div>''')
+        item.append('''<div class="annotator-replies"></div>''')
 
       if replies.length > 0
-        replylist = @annotator.element.find('.Replies')
+        replylist = @annotator.element.find('.annotator-replies')
         for reply in replies
           username = if (reply.user.name and reply.user.id) then ('@' + reply.user.id + ' (' + reply.user.name + ')') else reply.user
           div = '''<div class='reply'>'''
@@ -50,7 +45,7 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
 
       # Add the textarea
       if not @annotator.options.readOnly
-        item.append('''<div class='replybox'><textarea class="replyentry" placeholder="Reply to this annotation..."></textarea>''')
+        item.append('''<div class='replybox'><textarea class="replyentry" placeholder="Reply..."></textarea>''')
 
     viewer.checkOrientation()
 
