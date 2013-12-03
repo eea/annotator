@@ -33,13 +33,17 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
       if replies.length > 0
         replylist = @annotator.element.find('.annotator-replies')
         for reply in replies
-          username = if (reply.user.name and reply.user.id) then ('@' + reply.user.id + ' (' + reply.user.name + ')') else reply.user
+          usertitle = reply.user.name or reply.user
+          username = Util.userString(reply.user)
+          published = new Date(reply.updated or reply.created)
+          dateString = Util.dateString(published)
           div = '''<div class='reply'>'''
           if not @annotator.options.readOnly
               div += '''<button TITLE="Delete" class='annotator-delete-reply'>x</button>'''
           div += '''
               <div class='replytext'>''' + reply.reply + '''</div>
-              <div class='annotator-user replyuser'>''' + username + '''</div>
+              <div class='annotator-date' title="''' + published.toDateString() + '''">''' + dateString + '''</div>
+              <div class='annotator-user replyuser' title="''' + usertitle + '''">''' + username + '''</div>
             </div>'''
           $(replylist[idx]).append(div)
 

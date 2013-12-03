@@ -473,6 +473,12 @@ class Annotator extends Delegator
         console.error _t("Could not load ") + name + _t(" plugin. Have you included the appropriate <script> tag?")
     this # allow chaining
 
+  # Add custom fields to Annotator viewer
+  # Returns itself to allow chaining.
+  addField: (options) ->
+    @viewer.addField(options)
+    this
+
   # Public: Loads the @editor with the provided annotation and updates its
   # position in the window.
   #

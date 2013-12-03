@@ -80,7 +80,7 @@ Util.getLastTextNodeUpTo = (n) ->
       # This is an element, we need to dig in
       if n.lastChild? # Does it have children at all?
         result = Util.getLastTextNodeUpTo n.lastChild
-        if result? then return result        
+        if result? then return result
     else
       # Not a text node, and not an element node.
   # Could not find a text node in current node, go backwards
@@ -175,3 +175,23 @@ Util.mousePosition = (e, offsetEl) ->
 # where the existance of the parameter must be checked before calling.
 Util.preventEventDefault = (event) ->
   event?.preventDefault?()
+
+Util.days = ['Sun', 'Mon', 'Tue', 'Wen', 'Thu', 'Fri', 'Sat']
+
+Util.checkTime = (time) ->
+  if time < 10
+    time = "0" + time
+  time
+
+Util.dateString = (date) ->
+  day = @days[date.getDay()]
+  hour = @checkTime(date.getHours())
+  min = @checkTime(date.getMinutes())
+  day + ' ' + hour + ':' + min
+
+Util.userString = (user) ->
+  if user.id
+    userString = '@' + user.id
+  else
+    userString = user
+  userString

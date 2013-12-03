@@ -299,9 +299,10 @@ class Annotator.Plugin.Permissions extends Annotator.Plugin
     field = $(field)
 
     username = @options.userString annotation.user
+    usertitle = if annotation.user and annotation.user.name then annotation.user.name else username
     if annotation.user and username and typeof username == 'string'
       user = Annotator.Util.escape(@options.userString(annotation.user))
-      field.html(user).addClass('annotator-user')
+      field.html(user).addClass('annotator-user').attr('title', usertitle)
     else
       field.remove()
 

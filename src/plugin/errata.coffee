@@ -50,32 +50,47 @@ class Annotator.Erratum extends Delegator
   constructor: (element, options) ->
     super
     @annotator = @options.annotator
+    @readOnly = @annotator.options.readOnly
     this
 
   _setupComment: (annotation) ->
-    text = Util.escape(annotation.text)
-    user = annotation.user
-    userString = if (user.name and user.id) then ('@' + user.id + ' (' + user.name + ')') else user
+    self = this
+    textString = Util.escape(annotation.text)
+    userTitle = annotation.user.name or annotation.user
+    userString = Util.userString(annotation.user)
+    published = new Date(annotation.updated or annotation.created)
+    dateString = Util.dateString(published)
 
     div = $('''
       <div class="annotator-erratum annotator-item" data-id="''' + annotation.id + '''">
+        <span class="annotator-controls">
+          <button title="Delete" class="annotator-delete">Delete</button>
+        </span>
         <div class="erratum-quote">''' + annotation.quote + '''</div>
         <dl class="erratum-comment">
-          <dt class="replytext">''' + text + '''</dt>
-          <dd class="annotator-user">''' + userString + '''</dd>
+          <dt class="replytext">''' + textString + '''</dt>
+          <dd class="annotator-date" title="''' + published.toDateString() + '''">''' + dateString + '''</dd>
+          <dd class="annotator-user" title="''' + userTitle + '''">''' + userString + '''</dd>
         </dl>
       </div>
     ''')
 
+    div.find('.annotator-delete').click( (evt) ->
+      self.annotator.onDeleteAnnotation(annotation)
+    )
+
     erratum = div.find('.erratum-comment').hide()
     replies = annotation.replies or []
     for reply in replies
-      user = reply.user
-      userString = if (user.name and user.id) then ('@' + user.id + ' (' + user.name + ')') else user
-      text = Util.escape(reply.reply)
+      textString = Util.escape(reply.reply)
+      userTitle = reply.user.name or reply.user
+      userString = Util.userString(reply.user)
+      published = new Date(reply.updated or reply.created)
+      dateString = Util.dateString(published)
       comment = $('''
-        <dt class="replytext">''' + text + '''</dt>
-        <dd class="annotator-user">''' + userString + '''</dd>
+        <dt class="replytext">''' + textString + '''</dt>
+        <dd class="annotator-date" title="''' + published.toDateString() + '''">''' + dateString + '''</dd>
+        <dd class="annotator-user" title="''' + userTitle + '''">''' + userString + '''</dd>
       ''')
       comment.appendTo(erratum)
 
@@ -87,7 +102,9 @@ class Annotator.Erratum extends Delegator
     if existing.length
       @annotationDeleted annotation
 
-    self = this
+    if @readOnly
+      div.find('.annotator-controls').remove()
+
     div
       .data('id', annotation.id)
       .data('comment', annotation)
