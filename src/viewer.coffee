@@ -110,6 +110,7 @@ class Annotator.Viewer extends Annotator.Widget
   #
   # Returns itself.
   hide: (event) =>
+    $('.annotator-hl').removeClass('hover')
     Annotator.Util.preventEventDefault event
 
     @element.addClass(@classes.hide)

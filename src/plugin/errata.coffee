@@ -123,12 +123,15 @@ class Annotator.Erratum extends Delegator
         self.element.find('.erratum-comment').slideUp('fast')
         comment.find('.erratum-comment').slideDown('fast')
         if comment.parents('.fullscreen').length
-          highlights = annotation.highlights
-          if highlights and highlights.length
-            scrollTop = $(highlights[0]).position().top
-            $('html,body').animate({
-              scrollTop: scrollTop
-            })
+          highlights = annotation.highlights or []
+          $('.annotator-hl').removeClass('hover')
+          for highlight, i in highlights
+            if i == 0
+              scrollTop = $(highlights[0]).position().top
+              $('html,body').animate({
+                scrollTop: scrollTop
+              })
+            $(highlight).addClass('hover')
     })
     this
 

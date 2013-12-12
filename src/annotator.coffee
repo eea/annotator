@@ -621,6 +621,12 @@ class Annotator extends Delegator
     # Cancel any pending hiding of the viewer.
     this.clearViewerHideTimer()
 
+    $('.annotator-hl').removeClass('hover')
+    annotation = $(event.target).data('annotation')
+    highlights = if annotation then annotation.highlights else []
+    for highlight in highlights
+      $(highlight).addClass('hover')
+
     # Don't do anything if we're making a selection or
     # already displaying the viewer
     return false if @mouseIsDown or @viewer.isShown()
