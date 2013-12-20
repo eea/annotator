@@ -97,6 +97,9 @@ class Annotator.Erratum extends Delegator
     missing = @missing[annotation.id]
     if missing
       div.addClass('missing')
+      quote = div.find('.erratum-comment')
+      quote.attr("data-tooltip", "Can't find the original text the comment was referring to")
+      quote.data("tooltip", "Can't find the original text the comment was referring to")
 
     existing = @element.find('[data-id="' + annotation.id + '"]')
     if existing.length
@@ -120,10 +123,11 @@ class Annotator.Erratum extends Delegator
     comment.unbind()
     comment.bind({
       'click': (evt) ->
-        self.publish('beforeClick', [annotation])
+        data = {annotation: annotation, element: comment}
+        self.publish('beforeClick', data)
         self.element.find('.erratum-comment').slideUp('fast')
         comment.find('.erratum-comment').slideDown('fast')
-        self.publish('afterClick', [annotation])
+        self.publish('afterClick', data)
     })
     this
 
