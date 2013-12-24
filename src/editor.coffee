@@ -378,5 +378,7 @@ class Annotator.Editor extends Annotator.Widget
           throttle = false
         , 1000/60)
 
+    resize.unbind 'mousedown'
+    controls.unbind 'mousedown'
     resize.bind   'mousedown', onMousedown
     controls.bind 'mousedown', onMousedown
