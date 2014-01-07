@@ -27,7 +27,8 @@ PLUGINS=\
 	plugin/tags.coffee \
 	plugin/unsupported.coffee \
 	plugin/comment.coffee \
-	plugin/errata.coffee
+	plugin/errata.coffee \
+	plugin/googlechartsunpivot.coffee
 
 ANNOTATOR_FULL=\
 	$(ANNOTATOR) \
@@ -41,7 +42,8 @@ ANNOTATOR_FULL=\
 	plugin/tags.coffee \
 	plugin/kitchensink.coffee \
 	plugin/comment.coffee \
-	plugin/errata.coffee
+	plugin/errata.coffee \
+	plugin/googlechartsunpivot.coffee
 
 BOOKMARKLET=\
 	$(ANNOTATOR) \
