@@ -53,6 +53,23 @@ class Annotator.Erratum extends Delegator
     @readOnly = @annotator.options.readOnly
     this
 
+  _setupSections: () ->
+    @element.empty()
+
+    @pendingCount = 0
+    @pending = $('''
+      <fieldset class="annotator-erratum-section annotator-erratum-pending">
+        <legend>Active comments (<span class="count">''' + @pendingCount + '''</span>)</legend>
+      </fieldset>
+    ''').appendTo(@element)
+
+    @closedCount = 0
+    @closed = $('''
+      <fieldset class="annotator-erratum-section annotator-erratum-closed">
+        <legend>Closed comments (<span class="count">''' + @closedCount + '''</span>)</legend>
+      </fieldset>
+    ''').appendTo(@element)
+
   _setupComment: (annotation) ->
     self = this
     textString = Util.escape(annotation.text)
@@ -108,11 +125,20 @@ class Annotator.Erratum extends Delegator
     if @readOnly
       div.find('.annotator-controls').remove()
 
+    if annotation.closed
+      where = @closed
+      @closedCount += 1
+      @_updateCounters()
+    else
+      where = @pending
+      @pendingCount += 1
+      @_updateCounters()
+
     div
       .data('id', annotation.id)
       .data('comment', annotation)
       .hide()
-      .prependTo(@element)
+      .prependTo(where)
       .slideDown( -> self._reloadComment annotation )
     this
 
@@ -131,6 +157,9 @@ class Annotator.Erratum extends Delegator
     })
     this
 
+  _updateCounters: () ->
+    @closed.find('legend .count').text(@closedCount)
+    @pending.find('legend .count').text(@pendingCount)
 
   annotationsLoaded: (annotations) ->
     compare = (a, b) ->
@@ -140,7 +169,7 @@ class Annotator.Erratum extends Delegator
         return 1
       return 0
 
-    @element.empty()
+    @_setupSections()
     for annotation in annotations.sort(compare)
       @_setupComment(annotation)
     this
@@ -152,6 +181,9 @@ class Annotator.Erratum extends Delegator
   annotationDeleted: (annotation) ->
     comment = @element.find('[data-id="' + annotation.id + '"]')
     comment.slideUp( -> comment.remove() )
+
+    @pendingCount -= 1
+    @_updateCounters()
     this
 
   annotationUpdated: (annotation) ->
