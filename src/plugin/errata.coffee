@@ -125,7 +125,7 @@ class Annotator.Erratum extends Delegator
     if @readOnly
       div.find('.annotator-controls').remove()
 
-    if annotation.closed
+    if annotation.deleted
       where = @closed
       @closedCount += 1
       @_updateCounters()

@@ -32,6 +32,10 @@ class Annotator.Plugin.Store extends Annotator.Plugin
     # to the server. This _will_ override previous values.
     annotationData: {}
 
+    # If history is true, don't delete annotations from server, just mark them
+    # as deleted
+    history: false
+
     # Should the plugin emulate HTTP methods like PUT and DELETE for
     # interaction with legacy web servers? Setting this to `true` will fake
     # HTTP `PUT` and `DELETE` requests with an HTTP `POST`, and will set the
@@ -180,6 +184,8 @@ class Annotator.Plugin.Store extends Annotator.Plugin
   # Returns nothing.
   annotationDeleted: (annotation) ->
     if annotation in this.annotations
+      if @options.history
+        annotation.deleted = true
       this._apiRequest 'destroy', annotation, (() => this.unregisterAnnotation(annotation))
 
   # Public: Registers an annotation with the Store. Used to check whether an

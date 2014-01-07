@@ -319,7 +319,10 @@ class Annotator extends Delegator
       for normed in normedRanges
         annotation.quote.push      $.trim(normed.text())
         annotation.ranges.push     normed.serialize(@wrapper[0], '.annotator-hl')
-        $.merge annotation.highlights, this.highlightRange(normed)
+        cssClass = 'annotator-hl'
+        if annotation.deleted
+          cssClass += ' annotator-hl-deleted'
+        $.merge annotation.highlights, this.highlightRange(normed, cssClass)
 
       # Join all the quotes into one string.
       annotation.quote = annotation.quote.join(' / ')
