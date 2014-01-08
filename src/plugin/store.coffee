@@ -185,8 +185,13 @@ class Annotator.Plugin.Store extends Annotator.Plugin
   annotationDeleted: (annotation) ->
     if annotation in this.annotations
       if @options.history
-        annotation.deleted = true
-      this._apiRequest 'destroy', annotation, (() => this.unregisterAnnotation(annotation))
+        if annotation.deleted
+          annotation.deleted = false
+        else
+          annotation.deleted = true
+      else
+        this._apiRequest 'destroy', annotation, (() => this.unregisterAnnotation(annotation))
+    @annotator.publish "afterAnnotationDeleted", [annotation]
 
   # Public: Registers an annotation with the Store. Used to check whether an
   # annotation has already been created when using Store#annotationCreated().

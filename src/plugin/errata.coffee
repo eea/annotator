@@ -1,8 +1,8 @@
 class Annotator.Plugin.Errata extends Annotator.Plugin
   events:
-    'annotationsLoaded': 'annotationsLoaded'
+    'afterAnnotationsLoaded': 'annotationsLoaded'
     'afterAnnotationCreated': 'annotationCreated'
-    'annotationDeleted': 'annotationDeleted'
+    'afterAnnotationDeleted': 'annotationDeleted'
     'afterAnnotationUpdated': 'annotationUpdated'
     'rangeNormalizeFail': 'rangeNormalizeFail'
 
@@ -55,19 +55,22 @@ class Annotator.Erratum extends Delegator
 
   _setupSections: () ->
     @element.empty()
+    @element.addClass('eea-accordion-panels collapsed-by-default')
 
     @pendingCount = 0
     @pending = $('''
-      <fieldset class="annotator-erratum-section annotator-erratum-pending">
-        <legend>Active comments (<span class="count">''' + @pendingCount + '''</span>)</legend>
-      </fieldset>
+      <div class="annotator-erratum-section annotator-erratum-pending eea-accordion-panel">
+        <h2>Active comments (<span class="count">''' + @pendingCount + '''</span>)</h2>
+        <div class="pane"></div>
+      </div>
     ''').appendTo(@element)
 
     @closedCount = 0
     @closed = $('''
-      <fieldset class="annotator-erratum-section annotator-erratum-closed">
-        <legend>Closed comments (<span class="count">''' + @closedCount + '''</span>)</legend>
-      </fieldset>
+      <div class="annotator-erratum-section annotator-erratum-closed eea-accordion-panel">
+        <h2>Closed comments (<span class="count">''' + @closedCount + '''</span>)</h2>
+        <div class="pane"></div>
+      </div>
     ''').appendTo(@element)
 
   _setupComment: (annotation) ->
@@ -118,19 +121,15 @@ class Annotator.Erratum extends Delegator
       quote.attr("data-tooltip", "Can't find the original text the comment was referring to")
       quote.data("tooltip", "Can't find the original text the comment was referring to")
 
-    existing = @element.find('[data-id="' + annotation.id + '"]')
-    if existing.length
-      @annotationDeleted annotation
-
     if @readOnly
       div.find('.annotator-controls').remove()
 
     if annotation.deleted
-      where = @closed
+      where = @closed.find('.pane')
       @closedCount += 1
       @_updateCounters()
     else
-      where = @pending
+      where = @pending.find('.pane')
       @pendingCount += 1
       @_updateCounters()
 
@@ -158,8 +157,8 @@ class Annotator.Erratum extends Delegator
     this
 
   _updateCounters: () ->
-    @closed.find('legend .count').text(@closedCount)
-    @pending.find('legend .count').text(@pendingCount)
+    @closed.find('h2 .count').text(@closedCount)
+    @pending.find('h2 .count').text(@pendingCount)
 
   annotationsLoaded: (annotations) ->
     compare = (a, b) ->
@@ -172,6 +171,8 @@ class Annotator.Erratum extends Delegator
     @_setupSections()
     for annotation in annotations.sort(compare)
       @_setupComment(annotation)
+
+    @publish "annotationsErrataLoaded", [annotations]
     this
 
   annotationCreated: (annotation) ->
@@ -179,11 +180,23 @@ class Annotator.Erratum extends Delegator
     this
 
   annotationDeleted: (annotation) ->
-    comment = @element.find('[data-id="' + annotation.id + '"]')
-    comment.slideUp( -> comment.remove() )
+    self = this
+    pending = @pending.find('[data-id="' + annotation.id + '"]')
+    if pending.length
+      annotation.deleted = true
+      @pendingCount -= 1
 
-    @pendingCount -= 1
-    @_updateCounters()
+    closed = @closed.find('[data-id="' + annotation.id + '"]')
+    if closed.length
+      annotation.deleted = false
+      @closedCount -= 1
+
+    comment = @element.find('[data-id="' + annotation.id + '"]')
+    comment.slideUp( ->
+      comment.remove()
+      self._setupComment(annotation)
+    )
+
     this
 
   annotationUpdated: (annotation) ->
