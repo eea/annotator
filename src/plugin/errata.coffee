@@ -84,7 +84,7 @@ class Annotator.Erratum extends Delegator
     div = $('''
       <div class="annotator-erratum annotator-item" data-id="''' + annotation.id + '''">
         <span class="annotator-controls">
-          <button title="Delete" class="annotator-delete">Delete</button>
+          <span title="Close" class="annotator-delete eea-icon eea-icon-square-o"></span>
         </span>
         <div class="erratum-quote">''' + annotation.quote + '''</div>
         <dl class="erratum-comment">
@@ -124,14 +124,33 @@ class Annotator.Erratum extends Delegator
     if @readOnly
       div.find('.annotator-controls').remove()
 
+    icon = div.find('.eea-icon-square-o')
     if annotation.deleted
       where = @closed.find('.pane')
       @closedCount += 1
       @_updateCounters()
+
+      icon
+        .removeClass('eea-icon-square-o')
+        .addClass('eea-icon-check-square-o')
+        .attr('title', 'Reopen')
+
+      icon.bind({
+        "click": () ->
+            icon.removeClass('eea-icon-check-square-o')
+            icon.addClass('eea-icon-square-o')
+      })
+
     else
       where = @pending.find('.pane')
       @pendingCount += 1
       @_updateCounters()
+
+      icon.bind({
+        "click": () ->
+            icon.removeClass('eea-icon-square-o')
+            icon.addClass('eea-icon-check-square-o')
+      })
 
     div
       .data('id', annotation.id)

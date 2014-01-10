@@ -1006,3 +1006,8 @@
 .annotator-hl-deleted {
   background-color: transparent;
 }
+
+.annotator-edit.eea-icon,
+.annotator-delete.eea-icon {
+  cursor: pointer;
+}
