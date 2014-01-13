@@ -219,6 +219,9 @@ class Annotator.Erratum extends Delegator
     this
 
   annotationUpdated: (annotation) ->
+    comment = @element.find('[data-id="' + annotation.id + '"]')
+    if comment.length
+      comment.slideUp( -> comment.remove() )
     @_setupComment(annotation)
     this
 

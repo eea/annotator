@@ -39,7 +39,7 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
           dateString = Util.dateString(published)
           div = '''<div class='reply'>'''
           if not @annotator.options.readOnly
-              div += '''<span title="Delete" class='annotator-delete-reply eea-icon eea-icon-trash-o'></span>'''
+              div += '''<span title="Delete" class='annotator-delete-reply eea-icon eea-icon-times'></span>'''
           div += '''
               <div class='replytext'>''' + reply.reply + '''</div>
               <div class='annotator-date' title="''' + published.toDateString() + '''">''' + dateString + '''</div>
