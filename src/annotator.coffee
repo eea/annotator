@@ -534,9 +534,10 @@ class Annotator extends Delegator
   # Returns itself to allow chaining.
   showViewer: (annotations, location) =>
     @viewer.element.css(location)
-    @viewer.load(annotations)
 
-    this.publish('annotationViewerShown', [@viewer, annotations])
+    toShow = $.grep(annotations, (annotation, idx) -> not annotation.deleted )
+    @viewer.load(toShow)
+    this.publish('annotationViewerShown', [@viewer, toShow])
 
   # Annotator#element event callback. Allows 250ms for mouse pointer to get from
   # annotation highlight to @viewer to manipulate annotations. If timer expires

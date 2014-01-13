@@ -55,12 +55,12 @@ class Annotator.Erratum extends Delegator
 
   _setupSections: () ->
     @element.empty()
-    @element.addClass('eea-accordion-panels collapsed-by-default')
+    @element.addClass('eea-accordion-panels collapsed-by-default non-exclusive')
 
     @pendingCount = 0
     @pending = $('''
       <div class="annotator-erratum-section annotator-erratum-pending eea-accordion-panel">
-        <h2>Active comments (<span class="count">''' + @pendingCount + '''</span>)</h2>
+        <h2>Active comments (<span class="count">''' + @pendingCount + '''</span>)<span class="eea-icon eea-icon-right"></span></h2>
         <div class="pane"></div>
       </div>
     ''').appendTo(@element)
@@ -68,7 +68,7 @@ class Annotator.Erratum extends Delegator
     @closedCount = 0
     @closed = $('''
       <div class="annotator-erratum-section annotator-erratum-closed eea-accordion-panel">
-        <h2>Closed comments (<span class="count">''' + @closedCount + '''</span>)</h2>
+        <h2>Closed comments (<span class="count">''' + @closedCount + '''</span>)<span class="eea-icon eea-icon-right"></span></h2>
         <div class="pane"></div>
       </div>
     ''').appendTo(@element)
@@ -127,8 +127,6 @@ class Annotator.Erratum extends Delegator
     icon = div.find('.eea-icon-square-o')
     if annotation.deleted
       where = @closed.find('.pane')
-      @closedCount += 1
-      @_updateCounters()
 
       icon
         .removeClass('eea-icon-square-o')
@@ -143,8 +141,6 @@ class Annotator.Erratum extends Delegator
 
     else
       where = @pending.find('.pane')
-      @pendingCount += 1
-      @_updateCounters()
 
       icon.bind({
         "click": () ->
@@ -158,6 +154,8 @@ class Annotator.Erratum extends Delegator
       .hide()
       .prependTo(where)
       .slideDown( -> self._reloadComment annotation )
+
+    @_updateCounters()
     this
 
 
@@ -176,6 +174,8 @@ class Annotator.Erratum extends Delegator
     this
 
   _updateCounters: () ->
+    @closedCount = @closed.find('.annotator-erratum').length
+    @pendingCount = @pending.find('.annotator-erratum').length
     @closed.find('h2 .count').text(@closedCount)
     @pending.find('h2 .count').text(@pendingCount)
 
@@ -203,12 +203,10 @@ class Annotator.Erratum extends Delegator
     pending = @pending.find('[data-id="' + annotation.id + '"]')
     if pending.length
       annotation.deleted = true
-      @pendingCount -= 1
 
     closed = @closed.find('[data-id="' + annotation.id + '"]')
     if closed.length
       annotation.deleted = false
-      @closedCount -= 1
 
     comment = @element.find('[data-id="' + annotation.id + '"]')
     comment.slideUp( ->
@@ -216,6 +214,7 @@ class Annotator.Erratum extends Delegator
       self._setupComment(annotation)
     )
 
+    @annotator.setupAnnotation(annotation)
     this
 
   annotationUpdated: (annotation) ->
