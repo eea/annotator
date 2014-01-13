@@ -79,6 +79,10 @@ class Annotator.Plugin.EEAGoogleChartsUnpivotAnnotation extends Annotator.Plugin
             .attr("value", "number")
             .text("number")
             .appendTo(".googlechartAnnotationValueType select")
+        $("<option>")
+            .attr("value", "date")
+            .text("date")
+            .appendTo(".googlechartAnnotationValueType select")
 
         $(".googlechartAnnotationEditorTable select").bind(
             "change", () ->
