@@ -47,7 +47,7 @@ Range.sniff = (r) ->
 #     # Do something with the node.
 #
 # Returns the Node if found otherwise null.
-Range.nodeFromXPath = (xpath, root=document) ->
+Range.nodeFromXPath = (xpath, root=document, matchText=null, offset=0) ->
   evaluateXPath = (xp, nsResolver=null) ->
     try
       document.evaluate('.' + xp, root, nsResolver, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
@@ -68,7 +68,7 @@ Range.nodeFromXPath = (xpath, root=document) ->
       Util.nodeFromXPath(xp, root)
 
   if not $.isXMLDoc document.documentElement
-    evaluateXPath xpath
+    node = evaluateXPath xpath
   else
     # We're in an XML document, create a namespace resolver function to try
     # and resolve any namespaces in the current document.
@@ -102,7 +102,28 @@ Range.nodeFromXPath = (xpath, root=document) ->
         else document.documentElement.getAttribute('xmlns:' + ns)
 
       node = evaluateXPath xpath, customResolver
-    node
+
+  if node and matchText and $(node).text().indexOf(matchText) == -1
+    node = null
+
+  if not node and matchText
+    xp = xpath.replace(/\[[0-9]+\]/g, "").replace(/\//g, " ")
+    node = $(root).find("#{xp}:contains('#{matchText}')")
+    if node.length == 0
+      node = null
+    else if node.length == 1
+      node = node[0]
+    else
+      found = null
+      index = Number.MAX_VALUE
+      for n in node
+        myindex = Math.abs( $(n).text().indexOf(matchText) - offset )
+        if myindex < index
+          index = myindex
+          found = n
+      node = found
+
+  node
 
 class Range.RangeError extends Error
   constructor: (@type, @message, @parent=null) ->
@@ -382,9 +403,25 @@ class Range.SerializedRange
   normalize: (root, matchText) ->
     range = {}
 
+    matching =
+      start: null
+      end: null
+
+    if matchText
+      texts = $.map(
+        matchText.split('\n'), (text, idx) ->
+          tex = text.trim()
+          if tex.length
+            tex
+          else
+            null
+      )
+      matching.start = $(texts).first()[0]
+      matching.end = $(texts).last()[0]
+
     for p in ['start', 'end']
       try
-        node = Range.nodeFromXPath(this[p], root)
+        node = Range.nodeFromXPath(this[p], root, matching[p], this[p + 'Offset'])
       catch e
         throw new Range.RangeError(p, "Error while finding #{p} node: #{this[p]}: " + e, e)
 
