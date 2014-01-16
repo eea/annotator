@@ -103,7 +103,7 @@ Range.nodeFromXPath = (xpath, root=document, matchText=null, offset=0) ->
 
       node = evaluateXPath xpath, customResolver
 
-  if node and matchText and $(node).text().indexOf(matchText) == -1
+  if node and matchText and $(node).text().toLowerCase().indexOf(matchText) == -1
     node = null
 
   if not node and matchText
@@ -117,7 +117,7 @@ Range.nodeFromXPath = (xpath, root=document, matchText=null, offset=0) ->
       found = null
       index = Number.MAX_VALUE
       for n in node
-        myindex = Math.abs( $(n).text().indexOf(matchText) - offset )
+        myindex = Math.abs( $(n).text().toLowerCase().indexOf(matchText) - offset )
         if myindex < index
           index = myindex
           found = n
@@ -231,9 +231,10 @@ class Range.BrowserRange
     while nr.commonAncestor.nodeType isnt Node.ELEMENT_NODE
       nr.commonAncestor = nr.commonAncestor.parentNode
 
+
     if not matchText
       new Range.NormalizedRange(nr)
-    else if matchText.startsWith(nr.start.textContent.trim()) and matchText.endsWith(nr.end.textContent.trim())
+    else if matchText.startsWith(nr.start.textContent.trim().toLowerCase()) and matchText.endsWith(nr.end.textContent.trim().toLowerCase())
       new Range.NormalizedRange(nr)
     else
       throw new Range.RangeError("Exact match enabled. Couldn't find text: " + matchText)
@@ -416,8 +417,8 @@ class Range.SerializedRange
           else
             null
       )
-      matching.start = $(texts).first()[0]
-      matching.end = $(texts).last()[0]
+      matching.start = $(texts).first()[0].toLowerCase()
+      matching.end = $(texts).last()[0].toLowerCase()
 
     for p in ['start', 'end']
       try

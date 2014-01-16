@@ -296,7 +296,7 @@ class Annotator extends Delegator
   # Returns the initialised annotation.
   setupAnnotation: (annotation) ->
     root = @wrapper[0]
-    matchText = if @options.exactMatch then annotation.quote else false
+    matchText = if @options.exactMatch then annotation.quote.toLowerCase() else false
     annotation.ranges or= @selectedRanges
 
     normedRanges = []
@@ -393,11 +393,11 @@ class Annotator extends Delegator
         setTimeout((-> loader(annList)), 10)
       else
         this.publish 'annotationsLoaded', [clone]
+        this.publish "afterAnnotationsLoaded", [clone]
 
     clone = annotations.slice()
     loader(annotations) if annotations.length
 
-    @publish "afterAnnotationsLoaded", [clone]
     this
 
   # Public: Calls the Store#dumpAnnotations() method.
