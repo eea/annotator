@@ -78,8 +78,10 @@ class Annotator.Erratum extends Delegator
     textString = Util.escape(annotation.text)
     userTitle = annotation.user.name or annotation.user
     userString = Util.userString(annotation.user)
-    isoDate = annotation.updated or annotation.created
-    published = new Date(isoDate += 'Z')
+    isoDate = annotation.created
+    if isoDate.substr(isoDate.length-1) != 'Z'
+      isoDate += 'Z';
+    published = new Date(isoDate)
     dateString = Util.dateString(published)
 
     div = $('''
@@ -107,7 +109,9 @@ class Annotator.Erratum extends Delegator
       userTitle = reply.user.name or reply.user
       userString = Util.userString(reply.user)
       isoDate = reply.updated or reply.created
-      published = new Date(isoDate += 'Z')
+      if isoDate.substr(isoDate.length-1) != 'Z'
+        isoDate += 'Z';
+      published = new Date(isoDate)
       dateString = Util.dateString(published)
       comment = $('''
         <dt class="replytext">''' + textString + '''</dt>

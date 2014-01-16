@@ -35,7 +35,10 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
         for reply in replies
           usertitle = reply.user.name or reply.user
           username = Util.userString(reply.user)
-          published = new Date(reply.updated or reply.created)
+          isoDate = reply.updated or reply.created
+          if isoDate.substr(isoDate.length-1) != 'Z'
+            isoDate += 'Z';
+          published = new Date(isoDate)
           dateString = Util.dateString(published)
           div = '''<div class='reply'>'''
           if not @annotator.options.readOnly
