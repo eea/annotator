@@ -36,8 +36,8 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
           usertitle = reply.user.name or reply.user
           username = Util.userString(reply.user)
           isoDate = reply.updated or reply.created
-          if isoDate.substr(isoDate.length-1) != 'Z'
-            isoDate += 'Z';
+          if not isoDate.endsWith('Z')
+            isoDate += 'Z'
           published = new Date(isoDate)
           dateString = Util.dateString(published)
           div = '''<div class='reply'>'''

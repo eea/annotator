@@ -79,8 +79,8 @@ class Annotator.Erratum extends Delegator
     userTitle = annotation.user.name or annotation.user
     userString = Util.userString(annotation.user)
     isoDate = annotation.created
-    if isoDate.substr(isoDate.length-1) != 'Z'
-      isoDate += 'Z';
+    if not isoDate.endsWith('Z')
+      isoDate += 'Z'
     published = new Date(isoDate)
     dateString = Util.dateString(published)
 
@@ -109,8 +109,8 @@ class Annotator.Erratum extends Delegator
       userTitle = reply.user.name or reply.user
       userString = Util.userString(reply.user)
       isoDate = reply.updated or reply.created
-      if isoDate.substr(isoDate.length-1) != 'Z'
-        isoDate += 'Z';
+      if not isoDate.endsWith('Z')
+        isoDate += 'Z'
       published = new Date(isoDate)
       dateString = Util.dateString(published)
       comment = $('''
