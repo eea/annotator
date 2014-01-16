@@ -1,4 +1,4 @@
-# Extend String capabilities
+# Extend String capabilities and add jQuery :icontains for case insensitive matching
 #
 if typeof String.prototype.startsWith isnt 'function'
   String.prototype.startsWith = (str) ->
@@ -6,7 +6,22 @@ if typeof String.prototype.startsWith isnt 'function'
 
 if typeof  String.prototype.endsWith isnt "function"
   String.prototype.endsWith = (str) ->
-    this.slice(-str.length) == str;
+    this.slice(-str.length) == str
+
+# jQuery 1.8+
+if jQuery.expr.createPseudo
+  jQuery.expr[":"].icontains = jQuery.expr.createPseudo( (arg) ->
+    (elem) ->
+      text = jQuery(elem).text().toLowerCase().replace(/\xA0/g, " ")
+      text.indexOf(arg.toLowerCase()) >= 0
+  )
+# jQuery 1.7
+else
+  jQuery.extend ( jQuery.expr[':'].icontains = (a, i, m) ->
+    text = (a.textContent or a.innerText or "").toLowerCase().replace(/\xA0/g, " ")
+    .indexOf((m[3] or "").toLowerCase()) >= 0
+  )
+
 
 Range = {}
 
@@ -103,12 +118,14 @@ Range.nodeFromXPath = (xpath, root=document, matchText=null, offset=0) ->
 
       node = evaluateXPath xpath, customResolver
 
-  if node and matchText and $(node).text().toLowerCase().indexOf(matchText) == -1
-    node = null
+  if node and matchText
+    text = $(node).text().toLowerCase().replace(/\xA0/g, " ")
+    if text.indexOf(matchText) == -1
+      node = null
 
   if not node and matchText
     xp = xpath.replace(/\[[0-9]+\]/g, "").replace(/\//g, " ")
-    node = $(root).find("#{xp}:contains('#{matchText}')")
+    node = $(root).find("#{xp}:icontains('#{matchText}')")
     if node.length == 0
       node = null
     else if node.length == 1
@@ -117,7 +134,8 @@ Range.nodeFromXPath = (xpath, root=document, matchText=null, offset=0) ->
       found = null
       index = Number.MAX_VALUE
       for n in node
-        myindex = Math.abs( $(n).text().toLowerCase().indexOf(matchText) - offset )
+        text = $(n).text().toLowerCase().replace(/\xA0/g, " ")
+        myindex = Math.abs( text.indexOf(matchText) - offset )
         if myindex < index
           index = myindex
           found = n
@@ -232,9 +250,11 @@ class Range.BrowserRange
       nr.commonAncestor = nr.commonAncestor.parentNode
 
 
+    startText = nr.start.textContent.trim().toLowerCase().replace(/\xA0/g, " ")
+    endText = nr.end.textContent.trim().toLowerCase().replace(/\xA0/g, " ")
     if not matchText
       new Range.NormalizedRange(nr)
-    else if matchText.startsWith(nr.start.textContent.trim().toLowerCase()) and matchText.endsWith(nr.end.textContent.trim().toLowerCase())
+    else if matchText.startsWith(startText) and matchText.endsWith(endText)
       new Range.NormalizedRange(nr)
     else
       throw new Range.RangeError("Exact match enabled. Couldn't find text: " + matchText)

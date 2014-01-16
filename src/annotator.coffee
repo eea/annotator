@@ -296,7 +296,9 @@ class Annotator extends Delegator
   # Returns the initialised annotation.
   setupAnnotation: (annotation) ->
     root = @wrapper[0]
-    matchText = if @options.exactMatch then annotation.quote.toLowerCase() else false
+    matchText = false
+    if @options.exactMatch and annotation.quote
+      matchText = annotation.quote.toLowerCase().replace(/\xA0/g, " ")
     annotation.ranges or= @selectedRanges
 
     normedRanges = []
