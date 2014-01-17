@@ -51,6 +51,7 @@ class Annotator.Erratum extends Delegator
     super
     @annotator = @options.annotator
     @readOnly = @annotator.options.readOnly
+    @_setupSections()
     this
 
   _setupSections: () ->
