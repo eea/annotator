@@ -1,4 +1,4 @@
-# Extend String capabilities and add jQuery :icontains for case insensitive matching
+# Extend String capabilities
 #
 if typeof String.prototype.startsWith isnt 'function'
   String.prototype.startsWith = (str) ->
@@ -7,21 +7,6 @@ if typeof String.prototype.startsWith isnt 'function'
 if typeof  String.prototype.endsWith isnt "function"
   String.prototype.endsWith = (str) ->
     this.slice(-str.length) == str
-
-# jQuery 1.8+
-if jQuery.expr.createPseudo
-  jQuery.expr[":"].icontains = jQuery.expr.createPseudo( (arg) ->
-    (elem) ->
-      text = jQuery(elem).text().toLowerCase().replace(/\xA0/g, " ")
-      text.indexOf(arg.toLowerCase()) >= 0
-  )
-# jQuery 1.7
-else
-  jQuery.extend ( jQuery.expr[':'].icontains = (a, i, m) ->
-    text = (a.textContent or a.innerText or "").toLowerCase().replace(/\xA0/g, " ")
-    .indexOf((m[3] or "").toLowerCase()) >= 0
-  )
-
 
 Range = {}
 
@@ -62,7 +47,7 @@ Range.sniff = (r) ->
 #     # Do something with the node.
 #
 # Returns the Node if found otherwise null.
-Range.nodeFromXPath = (xpath, root=document, matchText=null, offset=0) ->
+Range.nodeFromXPath = (xpath, root=document, matchText=null, offset=0, otype="start") ->
   evaluateXPath = (xp, nsResolver=null) ->
     try
       document.evaluate('.' + xp, root, nsResolver, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
@@ -118,27 +103,52 @@ Range.nodeFromXPath = (xpath, root=document, matchText=null, offset=0) ->
 
       node = evaluateXPath xpath, customResolver
 
+
   if node and matchText
     text = $(node).text().toLowerCase().replace(/\xA0/g, " ")
-    if text.indexOf(matchText) == -1
+    newOffset = text.indexOf(matchText)
+    if otype == 'end'
+      newOffset += matchText.length
+    if newOffset == -1
+      node = null
+    if offset and newOffset != offset
       node = null
 
   if not node and matchText
     xp = xpath.replace(/\[[0-9]+\]/g, "").replace(/\//g, " ")
-    node = $(root).find("#{xp}:icontains('#{matchText}')")
+    node = $(root).find("#{xp}").filter( ->
+      text = $(this).text().toLowerCase().replace(/\xA0/g, " ")
+      text.indexOf(matchText) != -1
+    )
+
     if node.length == 0
       node = null
     else if node.length == 1
       node = node[0]
+      text = $(node).text().toLowerCase().replace(/\xA0/g, " ")
+      newOffset = text.indexOf(matchText)
+      if otype == 'end'
+        newOffset += matchText.length
+      if newOffset != offset
+        $(node).data(otype + 'Offset', newOffset)
+      else
+        $(node).removeData(otype + 'Offset')
     else
       found = null
       index = Number.MAX_VALUE
       for n in node
         text = $(n).text().toLowerCase().replace(/\xA0/g, " ")
-        myindex = Math.abs( text.indexOf(matchText) - offset )
+        newOffset = text.indexOf(matchText)
+        myindex = Math.abs( newOffset - offset )
         if myindex < index
           index = myindex
           found = n
+          if otype == 'end'
+            newOffset += matchText.length
+          if newOffset != offset
+            $(n).data(otype + 'Offset', newOffset)
+          else
+            $(n).removeData(otype + 'Offset')
       node = found
 
   node
@@ -442,12 +452,17 @@ class Range.SerializedRange
 
     for p in ['start', 'end']
       try
-        node = Range.nodeFromXPath(this[p], root, matching[p], this[p + 'Offset'])
+        node = Range.nodeFromXPath(this[p], root, matching[p], this[p + 'Offset'], p)
       catch e
         throw new Range.RangeError(p, "Error while finding #{p} node: #{this[p]}: " + e, e)
 
       if not node
         throw new Range.RangeError(p, "Couldn't find #{p} node: #{this[p]}")
+
+      # Update offsets if text position changed in paragraph
+      newOffset = $(node).data(p + 'Offset')
+      if newOffset isnt undefined
+        this[p + 'Offset'] = newOffset
 
       # Unfortunately, we *can't* guarantee only one textNode per
       # elementNode, so we have to walk along the element's textNodes until
