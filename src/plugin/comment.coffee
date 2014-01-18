@@ -60,6 +60,7 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
   # Handle the event when the submit button is clicked
   #
   onReplyEntryClick: (event) ->
+    event.preventDefault()
     item =  $(event.target).parent().parent()
     textarea = item.find('.replyentry')
     reply = textarea.val()
@@ -118,5 +119,6 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
       # If "return" was pressed without the shift key, we're done.
       @onReplyEntryClick(event)
 
-  hide: ->
+  hide: (event) ->
+    event.preventDefault()
     @annotator.viewer.hide()
