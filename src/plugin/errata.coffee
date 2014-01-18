@@ -125,8 +125,8 @@ class Annotator.Erratum extends Delegator
     if missing
       div.addClass('missing')
       quote = div.find('.erratum-comment')
-      quote.attr("data-tooltip", "Can't find the original text the comment was referring to")
-      quote.data("tooltip", "Can't find the original text the comment was referring to")
+      quote.attr("data-tooltip", "Can't find the text the comment was referring to")
+      quote.data("tooltip", "Can't find the text the comment was referring to")
 
     if @readOnly
       div.find('.annotator-controls').remove()
@@ -175,6 +175,8 @@ class Annotator.Erratum extends Delegator
         data = {annotation: annotation, element: comment}
         self.publish('beforeClick', data)
         self.element.find('.erratum-comment').slideUp('fast')
+        self.element.find('.annotator-erratum').removeClass('open')
+        comment.addClass('open')
         comment.find('.erratum-comment').slideDown('fast')
         self.publish('afterClick', data)
     })
