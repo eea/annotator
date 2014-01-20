@@ -18,6 +18,7 @@ class Annotator.Plugin.Permissions extends Annotator.Plugin
   # @element. See Delegator#addEvents() for details.
   events:
     'beforeAnnotationCreated': 'addFieldsToAnnotation'
+    'replyLoaded': 'updateReplyControls'
 
   # A Object literal of default options for the class.
   options:
@@ -310,6 +311,14 @@ class Annotator.Plugin.Permissions extends Annotator.Plugin
       controls.hideEdit()   unless this.authorize('update', annotation)
       controls.hideDelete() unless this.authorize('delete', annotation)
 
+  # Handler for permissions on replies
+  updateReplyControls: (data) =>
+    user = data.user
+    replydiv = this.element.find('.reply')
+    controls = replydiv.find('.annotator-delete-reply')
+    if controls
+      controls.attr('disabled', 'disabled') unless @options.userString(this.user) == @options.userString(user)
+
   # Sets the Permissions#user property on the basis of a received authToken.
   #
   # token - the authToken received by the Auth plugin
@@ -317,4 +326,3 @@ class Annotator.Plugin.Permissions extends Annotator.Plugin
   # Returns nothing.
   _setAuthFromToken: (token) =>
     this.setUser(token.userId)
-

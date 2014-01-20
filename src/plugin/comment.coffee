@@ -42,13 +42,21 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
           dateString = Util.dateString(published)
           div = '''<div class='reply'>'''
           if not @annotator.options.readOnly
-              div += '''<span title="Delete" class='annotator-delete-reply eea-icon eea-icon-times'></span>'''
+            if reply == replies[replies.length - 1]
+              control = '''<span class='annotator-controls'>'''
+              control += '''<button title="Delete" class='annotator-delete-reply'>'''
+              control += '''<span class='eea-icon eea-icon-times'></span>'''
+              control += '''</button>'''
+              control += '''</span>'''
+              div += control
           div += '''
               <div class='replytext'>''' + reply.reply + '''</div>
               <div class='annotator-date' title="''' + published.toDateString() + '''">''' + dateString + '''</div>
               <div class='annotator-user replyuser' title="''' + usertitle + '''">''' + username + '''</div>
             </div>'''
           $(replylist[idx]).append(div)
+          data = {user: reply.user, replydiv: div, replies_no: replies.length}
+          this.publish('replyLoaded', data)
 
       # Add the textarea
       if not @annotator.options.readOnly
