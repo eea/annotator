@@ -174,10 +174,12 @@ class Annotator.Erratum extends Delegator
       'click': (evt) ->
         data = {annotation: annotation, element: comment}
         self.publish('beforeClick', data)
+        opened = comment.hasClass('open')
         self.element.find('.erratum-comment').slideUp('fast')
         self.element.find('.annotator-erratum').removeClass('open')
-        comment.addClass('open')
-        comment.find('.erratum-comment').slideDown('fast')
+        if not opened
+          comment.addClass('open')
+          comment.find('.erratum-comment').slideDown('fast')
         self.publish('afterClick', data)
     })
     this
