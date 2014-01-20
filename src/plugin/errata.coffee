@@ -88,7 +88,9 @@ class Annotator.Erratum extends Delegator
     div = $('''
       <div class="annotator-erratum annotator-item" data-id="''' + annotation.id + '''">
         <span class="annotator-controls">
-          <span title="Close" class="annotator-delete eea-icon eea-icon-square-o"></span>
+          <button title="Close" class="annotator-delete">
+            <span class="eea-icon eea-icon-square-o"></span>
+          </button>
         </span>
         <div class="erratum-quote">''' + annotation.quote + '''</div>
         <dl class="erratum-comment">
