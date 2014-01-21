@@ -92,11 +92,13 @@ class Annotator.Erratum extends Delegator
             <span class="eea-icon eea-icon-square-o"></span>
           </button>
         </span>
-        <div class="erratum-quote">''' + annotation.quote + '''</div>
+        <div class="erratum-quote">
+          <span class="erratum-header-date" title="''' + published.toDateString() + '''">''' + dateString + '''</span>
+          <span class="erratum-header-user" title="''' + userTitle + '''">''' + userString + '''</span>
+          <span class="erratum-header-text">''' + textString + '''</span>
+        </div>
         <dl class="erratum-comment">
-          <dt class="replytext">''' + textString + '''</dt>
-          <dd class="annotator-date" title="''' + published.toDateString() + '''">''' + dateString + '''</dd>
-          <dd class="annotator-user" title="''' + userTitle + '''">''' + userString + '''</dd>
+          <dt class="replyquote">''' + annotation.quote + '''</dt>
         </dl>
       </div>
     ''')
@@ -107,6 +109,9 @@ class Annotator.Erratum extends Delegator
 
     erratum = div.find('.erratum-comment').hide()
     replies = annotation.replies or []
+    if replies.length
+      $('<dt class="erratum-header-replies">Replies</dt>').appendTo(erratum)
+
     for reply in replies
       textString = Util.escape(reply.reply)
       userTitle = reply.user.name or reply.user
