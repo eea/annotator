@@ -141,11 +141,11 @@ class Annotator.Erratum extends Delegator
       textarea = $('''<div class='replybox'><textarea class="replyentry-errata" placeholder="Reply..."></textarea>''')
       textarea.appendTo(erratum)
 
-      textarea.bind('click', () -> 
-        self.processKeypress(event, annotation)
+      textarea.bind('click', (evt) -> 
+        self.processKeypress(evt, annotation)
       )
-      textarea.bind('keydown', () ->
-          self.processKeypress(event, annotation)
+      textarea.bind('keydown', (evt) ->
+          self.processKeypress(evt, annotation)
       )
 
     icon = div.find('.eea-icon-square-o')
