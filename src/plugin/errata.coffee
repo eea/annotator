@@ -237,8 +237,6 @@ class Annotator.Erratum extends Delegator
     reply_controls = item.find('.annotator-reply-controls')
     reply_controls.parent().find('.replyentry-errata').val('')
     reply_controls.remove()
-    item.slideUp('fast')
-    item.parent().removeClass('open')
 
   getReplyObject: ->
     replyObject =
