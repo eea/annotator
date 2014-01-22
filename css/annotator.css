@@ -1114,7 +1114,10 @@
 
 .annotator-item textarea {
   min-height: 50px;
-  width: 100%;
+  min-width: 99%;
+  border: 1px solid black;
+  display: block;
+  
 }
 
 .annotator-reply-controls {
