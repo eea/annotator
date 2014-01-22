@@ -203,15 +203,14 @@ class Annotator.Erratum extends Delegator
         )
       if cancel_btn
         cancel_btn.bind('click', () ->
-          reply_controls.parent().find('.replyentry-errata').val('')
-          reply_controls.remove()
-          self.element.find('.erratum-comment').slideUp('fast')
-          self.element.find('.annotator-erratum').removeClass('open')
+          self.onCancelReply(event, annotation)          
         )
 
     if event.keyCode is 13 and !event.shiftKey
       # If "return" was pressed without the shift key, we're done.
       @onReplyEntryClick(event, annotation)
+    else if event.keyCode is 27
+      @onCancelReply(event, annotation)
 
   onReplyEntryClick: (event, annotation) ->
     event.preventDefault()
@@ -228,6 +227,15 @@ class Annotator.Erratum extends Delegator
       annotation.replies.push(replyObject)
 
       annotation = @annotator.updateAnnotation(annotation)
+
+  onCancelReply: (event, annotation) ->
+    event.preventDefault()
+    item = $(event.target).parent().parent()
+    reply_controls = item.find('.annotator-reply-controls')
+    reply_controls.parent().find('.replyentry-errata').val('')
+    reply_controls.remove()
+    item.slideUp('fast')
+    item.parent().removeClass('open')
 
   getReplyObject: ->
     replyObject =

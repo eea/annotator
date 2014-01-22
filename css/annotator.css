@@ -1115,7 +1115,7 @@
 .annotator-item textarea {
   min-height: 50px;
   min-width: 99%;
-  border: 1px solid black;
+  border: 1px solid #eee;
   display: block;
   
 }
@@ -1123,7 +1123,7 @@
 .erratum-comment .replybox {
 	padding:12px 0 6px;
 	margin-top: 12px;
-	border-top: 1px solid #CCC;
+	border-top: 1px solid #eee;
 }
 
 .annotator-reply-controls {
