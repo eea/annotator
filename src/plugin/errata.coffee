@@ -137,15 +137,16 @@ class Annotator.Erratum extends Delegator
 
     if @readOnly
       div.find('.annotator-controls').remove()
-    else
-      textarea = $('''<div class='replybox'><textarea class="replyentry-errata" placeholder="Reply..."></textarea>''')
-      textarea.appendTo(erratum)
+    else if not annotation.deleted
+      replybox = $('''<div class='replybox'><textarea class="replyentry-errata" placeholder="Reply..."></textarea>''')
+      replybox.appendTo(erratum)
 
+      textarea = replybox.find('.replyentry-errata')
       textarea.bind('click', (evt) -> 
         self.processKeypress(evt, annotation)
       )
       textarea.bind('keydown', (evt) ->
-          self.processKeypress(evt, annotation)
+        self.processKeypress(evt, annotation)
       )
 
     icon = div.find('.eea-icon-square-o')
@@ -198,12 +199,14 @@ class Annotator.Erratum extends Delegator
       save_btn = reply_controls.find('.annotator-reply-save')
       cancel_btn = reply_controls.find('.annotator-cancel')
       if save_btn
-        save_btn.bind('click', () -> 
-          self.onReplyEntryClick(event, annotation)
+        save_btn.bind('click', (evt) ->
+          evt.preventDefault()
+          self.onReplyEntryClick(evt, annotation)
         )
       if cancel_btn
-        cancel_btn.bind('click', () ->
-          self.onCancelReply(event, annotation)          
+        cancel_btn.bind('click', (evt) ->
+          evt.preventDefault()
+          self.onCancelReply(evt, annotation)
         )
 
     if event.keyCode is 13 and !event.shiftKey
@@ -230,7 +233,7 @@ class Annotator.Erratum extends Delegator
 
   onCancelReply: (event, annotation) ->
     event.preventDefault()
-    item = $(event.target).parent().parent()
+    item = $(event.target).parents('.erratum-comment')
     reply_controls = item.find('.annotator-reply-controls')
     reply_controls.parent().find('.replyentry-errata').val('')
     reply_controls.remove()
@@ -247,6 +250,10 @@ class Annotator.Erratum extends Delegator
   _reloadComment: (annotation) ->
     comment = @element.find('[data-id="' + annotation.id + '"]')
     self = this
+    collapsed_annotation = comment.parent().attr('collapsed-annotation')
+    if collapsed_annotation is annotation.id
+      comment.addClass('open');
+      comment.find('.erratum-comment').slideDown('fast')
     erratum_quote = comment.find('.erratum-quote')
     erratum_quote.unbind()
     erratum_quote.bind({
@@ -308,9 +315,13 @@ class Annotator.Erratum extends Delegator
     this
 
   annotationUpdated: (annotation) ->
+    self = this
     comment = @element.find('[data-id="' + annotation.id + '"]')
     if comment.length
-      comment.slideUp( -> comment.remove() )
+      comment.slideUp( -> 
+        comment.parent().attr('collapsed-annotation', comment.attr('data-id'))
+        comment.remove()
+      )
     @_setupComment(annotation)
     this
 
