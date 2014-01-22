@@ -1120,8 +1120,15 @@
   
 }
 
+.erratum-comment .replybox {
+	padding:12px 0 6px;
+	margin-top: 12px;
+	border-top: 1px solid #CCC;
+}
+
 .annotator-reply-controls {
 	text-align: right;
+	padding-top: 12px;
 }
 
 /* WebKit browsers */
