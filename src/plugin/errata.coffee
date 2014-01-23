@@ -137,6 +137,17 @@ class Annotator.Erratum extends Delegator
 
     if @readOnly
       div.find('.annotator-controls').remove()
+    else if not annotation.deleted
+      replybox = $('''<div class='replybox'><textarea class="replyentry-errata" placeholder="Reply..."></textarea>''')
+      replybox.appendTo(erratum)
+
+      textarea = replybox.find('.replyentry-errata')
+      textarea.bind('click', (evt) -> 
+        self.processKeypress(evt, annotation)
+      )
+      textarea.bind('keydown', (evt) ->
+        self.processKeypress(evt, annotation)
+      )
 
     icon = div.find('.eea-icon-square-o')
     if annotation.deleted
@@ -172,12 +183,78 @@ class Annotator.Erratum extends Delegator
     @_updateCounters()
     this
 
+  processKeypress: (event, annotation) =>
+    self = this
+    item =  $(event.target).parent()
+
+    controls = item.find('.annotator-reply-controls')
+    if controls.length == 0
+      reply_controls = $('''<div class="annotator-reply-controls">
+          <a href="#save" class="annotator-reply-save">Save</a>
+          <a href="#cancel" class="annotator-cancel">Cancel</a>
+          </div>
+          </div>
+          ''')
+      item.append(reply_controls)
+      save_btn = reply_controls.find('.annotator-reply-save')
+      cancel_btn = reply_controls.find('.annotator-cancel')
+      if save_btn
+        save_btn.bind('click', (evt) ->
+          evt.preventDefault()
+          self.onReplyEntryClick(evt, annotation)
+        )
+      if cancel_btn
+        cancel_btn.bind('click', (evt) ->
+          evt.preventDefault()
+          self.onCancelReply(evt, annotation)
+        )
+
+    if event.keyCode is 13 and !event.shiftKey
+      # If "return" was pressed without the shift key, we're done.
+      @onReplyEntryClick(event, annotation)
+    else if event.keyCode is 27
+      @onCancelReply(event, annotation)
+
+  onReplyEntryClick: (event, annotation) ->
+    event.preventDefault()
+    item =  $(event.target).parent().parent()
+    textarea = item.find('.replyentry-errata')
+    reply = textarea.val()
+    
+    if reply != ''
+      replyObject = @getReplyObject()
+      replyObject.reply = reply
+
+      if !annotation.replies
+        annotation.replies = []
+      annotation.replies.push(replyObject)
+
+      annotation = @annotator.updateAnnotation(annotation)
+
+  onCancelReply: (event, annotation) ->
+    event.preventDefault()
+    item = $(event.target).parents('.erratum-comment')
+    reply_controls = item.find('.annotator-reply-controls')
+    reply_controls.parent().find('.replyentry-errata').val('')
+    reply_controls.remove()
+
+  getReplyObject: ->
+    replyObject =
+        reply: ""
+        created: new Date().toJSON()
+
+    replyObject
 
   _reloadComment: (annotation) ->
     comment = @element.find('[data-id="' + annotation.id + '"]')
     self = this
-    comment.unbind()
-    comment.bind({
+    collapsed_annotation = comment.parent().attr('collapsed-annotation')
+    if collapsed_annotation is annotation.id
+      comment.addClass('open');
+      comment.find('.erratum-comment').slideDown('fast')
+    erratum_quote = comment.find('.erratum-quote')
+    erratum_quote.unbind()
+    erratum_quote.bind({
       'click': (evt) ->
         data = {annotation: annotation, element: comment}
         self.publish('beforeClick', data)
@@ -236,9 +313,13 @@ class Annotator.Erratum extends Delegator
     this
 
   annotationUpdated: (annotation) ->
+    self = this
     comment = @element.find('[data-id="' + annotation.id + '"]')
     if comment.length
-      comment.slideUp( -> comment.remove() )
+      comment.slideUp( -> 
+        comment.parent().attr('collapsed-annotation', comment.attr('data-id'))
+        comment.remove()
+      )
     @_setupComment(annotation)
     this
 
