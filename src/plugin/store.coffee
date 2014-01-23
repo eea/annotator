@@ -191,7 +191,7 @@ class Annotator.Plugin.Store extends Annotator.Plugin
 
     this._apiRequest 'destroy', annotation, ( (data) =>
       if data
-        annotation = data
+        this.updateAnnotation(annotation, data)
       if not @options.history
         this.unregisterAnnotation(annotation)
       @annotator.publish "afterAnnotationDeleted", [annotation]
