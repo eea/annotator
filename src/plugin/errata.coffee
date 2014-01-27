@@ -263,9 +263,11 @@ class Annotator.Erratum extends Delegator
         opened = comment.hasClass('open')
         self.element.find('.erratum-comment').slideUp('fast')
         self.element.find('.annotator-erratum').removeClass('open')
+        self.element.find('.erratum-comment').trigger('commentUnCollapsed', [data])
         if not opened
           comment.addClass('open')
           comment.find('.erratum-comment').slideDown('fast')
+          comment.find('.erratum-comment').trigger('commentCollapsed', [data])
         self.publish('afterClick', data)
     })
     this
