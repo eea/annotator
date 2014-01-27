@@ -402,6 +402,13 @@ class Annotator extends Delegator
 
     this
 
+  refreshAnnotations: (annotations=[]) ->
+    if @plugins['Store']
+      @plugins['Store'].refreshAnnotations(annotations)
+    else
+      console.warn(_t("Can't refresh annotations without Store plugin."))
+      return false
+
   # Public: Calls the Store#dumpAnnotations() method.
   #
   # Returns dumped annotations Array or false if Store is not loaded.

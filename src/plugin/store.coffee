@@ -254,6 +254,27 @@ class Annotator.Plugin.Store extends Annotator.Plugin
     # with ids from the server).
     $(annotation.highlights).data('annotation', annotation)
 
+  # Refresh annotations on page without backend interaction
+  refreshAnnotations: (annotations) ->
+    for annotation in annotations
+      @refreshAnnotation annotation
+    this
+
+  # Refresh one annotation
+  refreshAnnotation: (annotation) ->
+    name = annotation.id
+    deleted = annotation.deleted
+    for old in @annotations
+      if old.id == name
+        @updateAnnotation old, annotation
+        if deleted != old.deleted
+          return @annotator.publish "afterAnnotationDeleted", [annotation]
+        else
+          return @annotator.publish "afterAnnotationUpdated", [annotation]
+    @registerAnnotation annotation
+    @updateAnnotation annotation, {}
+    @annotator.publish "afterAnnotationCreated", [annotation]
+
   # Public: Makes a request to the server for all annotations.
   #
   # Examples
