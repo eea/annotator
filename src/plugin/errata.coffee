@@ -142,7 +142,7 @@ class Annotator.Erratum extends Delegator
       replybox.appendTo(erratum)
 
       textarea = replybox.find('.replyentry-errata')
-      textarea.bind('click', (evt) -> 
+      textarea.bind('click', (evt) ->
         self.processKeypress(evt, annotation)
       )
       textarea.bind('keydown', (evt) ->
@@ -178,9 +178,11 @@ class Annotator.Erratum extends Delegator
       .data('comment', annotation)
       .hide()
       .prependTo(where)
-      .slideDown( -> self._reloadComment annotation )
+      .slideDown( ->
+        self._reloadComment annotation
+        self._updateCounters()
+      )
 
-    @_updateCounters()
     this
 
   processKeypress: (event, annotation) =>
@@ -220,7 +222,7 @@ class Annotator.Erratum extends Delegator
     item =  $(event.target).parent().parent()
     textarea = item.find('.replyentry-errata')
     reply = textarea.val()
-    
+
     if reply != ''
       replyObject = @getReplyObject()
       replyObject.reply = reply
@@ -318,7 +320,7 @@ class Annotator.Erratum extends Delegator
     self = this
     comment = @element.find('[data-id="' + annotation.id + '"]')
     if comment.length
-      comment.slideUp( -> 
+      comment.slideUp( ->
         comment.parent().attr('collapsed-annotation', comment.attr('data-id'))
         comment.remove()
       )
