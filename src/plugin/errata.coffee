@@ -51,7 +51,6 @@ class Annotator.Erratum extends Delegator
     super
     @annotator = @options.annotator
     @readOnly = @annotator.options.readOnly
-    @_setupSections()
     this
 
   _setupSections: () ->
@@ -74,7 +73,7 @@ class Annotator.Erratum extends Delegator
       </div>
     ''').appendTo(@element)
 
-  _setupComment: (annotation) ->
+  _setupComment: (annotation, onload=false) ->
     self = this
     textString = Util.escape(annotation.text)
     userTitle = annotation.user.name or annotation.user
@@ -179,7 +178,7 @@ class Annotator.Erratum extends Delegator
       .hide()
       .prependTo(where)
       .slideDown( ->
-        self._reloadComment annotation
+        self._reloadComment annotation, onload
         self._updateCounters()
       )
 
@@ -247,7 +246,7 @@ class Annotator.Erratum extends Delegator
 
     replyObject
 
-  _reloadComment: (annotation) ->
+  _reloadComment: (annotation, onload=false) ->
     comment = @element.find('[data-id="' + annotation.id + '"]')
     self = this
     collapsed_annotation = comment.parent().attr('collapsed-annotation')
@@ -270,6 +269,10 @@ class Annotator.Erratum extends Delegator
           comment.find('.erratum-comment').trigger('commentCollapsed', [data])
         self.publish('afterClick', data)
     })
+
+    if not onload
+      @annotator.publish "annotationErrataUpdated", [annotation]
+
     this
 
   _updateCounters: () ->
@@ -278,7 +281,7 @@ class Annotator.Erratum extends Delegator
     @closed.find('h2 .count').text(@closedCount)
     @pending.find('h2 .count').text(@pendingCount)
 
-  annotationsLoaded: (annotations) ->
+  annotationsLoaded: (annotations=[]) ->
     compare = (a, b) ->
       if a.updated < b.updated
         return -1
@@ -288,7 +291,7 @@ class Annotator.Erratum extends Delegator
 
     @_setupSections()
     for annotation in annotations.sort(compare)
-      @_setupComment(annotation)
+      @_setupComment(annotation, true)
 
     @publish "annotationsErrataLoaded", [annotations]
     this

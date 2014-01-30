@@ -398,17 +398,45 @@ class Annotator extends Delegator
         this.publish "afterAnnotationsLoaded", [clone]
 
     clone = annotations.slice()
-    loader(annotations) if annotations.length
+    if annotations.length
+      loader(annotations)
+    else
+      this.publish "afterAnnotationsLoaded", []
 
     this
 
   refreshAnnotations: (annotations=[]) ->
-    if @plugins['Store']
+    store = @plugins['Store']
+    if store
       for annotation in annotations
-        @plugins['Store'].refreshAnnotation(annotation)
+        @refreshAnnotation(annotation)
     else
       console.warn(_t("Can't refresh annotations without Store plugin."))
       return false
+
+  refreshAnnotation: (annotation) ->
+    store = @plugins['Store']
+    if not store
+      console.warn(_t("Can't refresh annotations without Store plugin."))
+      return false
+    else
+      name = annotation.id
+      deleted = annotation.deleted
+      for old in store.annotations
+        # Annotation updated
+        if old.id == name
+          store.updateAnnotation old, annotation
+          # Annotation was deleted
+          if deleted != old.deleted
+            return @publish "afterAnnotationDeleted", [annotation]
+          # Annotation updated
+          else
+            return @publish "afterAnnotationUpdated", [annotation]
+
+      # Annotation is new let's create it
+      store.registerAnnotation annotation
+      store.updateAnnotation annotation, {}
+      store.publish "afterAnnotationCreated", [annotation]
 
   # Public: Calls the Store#dumpAnnotations() method.
   #
