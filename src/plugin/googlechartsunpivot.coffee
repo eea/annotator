@@ -26,6 +26,7 @@ class Annotator.Plugin.EEAGoogleChartsUnpivotAnnotation extends Annotator.Plugin
 
         annot = $(".hiddenAnnotatorTextArea").attr("value")
         obj = jQuery(this.element).parent().find("textarea").parent()
+        obj.closest(".annotator-listing").height("110px")
 
         $(@element).remove()
         $(".googlechartAnnotationEditorTable").html("")
@@ -110,6 +111,10 @@ class Annotator.Plugin.EEAGoogleChartsUnpivotAnnotation extends Annotator.Plugin
             return
 
         obj = $(".annotator-widget.annotator-listing")
+        obj.find(".eea-icon-edit").removeClass("eea-icon-edit").addClass("eea-icon-pencil")
+        obj.find(".eea-icon-square-o").removeClass("eea-icon-square-o").addClass("eea-icon-trash-o")
+        obj.find(".annotator-edit").height("18px")
+        obj.find(".annotator-delete").height("18px")
         annot = JSON.parse(obj.find("div:first").text())
         obj.find("div").remove()
 
