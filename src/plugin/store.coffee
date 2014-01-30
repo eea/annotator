@@ -254,12 +254,6 @@ class Annotator.Plugin.Store extends Annotator.Plugin
     # with ids from the server).
     $(annotation.highlights).data('annotation', annotation)
 
-  # Refresh annotations on page without backend interaction
-  refreshAnnotations: (annotations) ->
-    for annotation in annotations
-      @refreshAnnotation annotation
-    this
-
   # Refresh one annotation
   refreshAnnotation: (annotation) ->
     name = annotation.id

@@ -404,7 +404,8 @@ class Annotator extends Delegator
 
   refreshAnnotations: (annotations=[]) ->
     if @plugins['Store']
-      @plugins['Store'].refreshAnnotations(annotations)
+      for annotation in annotations
+        @plugins['Store'].refreshAnnotation(annotation)
     else
       console.warn(_t("Can't refresh annotations without Store plugin."))
       return false
