@@ -314,9 +314,9 @@ class Annotator.Erratum extends Delegator
     comment.slideUp( ->
       comment.remove()
       self._setupComment(annotation)
+      self.annotator.setupAnnotation(annotation)
     )
 
-    @annotator.setupAnnotation(annotation)
     this
 
   annotationUpdated: (annotation) ->
