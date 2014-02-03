@@ -362,13 +362,14 @@ class Annotator extends Delegator
   # annotation - An annotation Object to delete.
   #
   # Returns deleted annotation.
-  deleteAnnotation: (annotation) ->
+  deleteAnnotation: (annotation, storage=true) ->
     if annotation.highlights?
       for h in annotation.highlights when h.parentNode?
         child = h.childNodes[0]
         $(h).replaceWith(h.childNodes)
 
-    this.publish('annotationDeleted', [annotation])
+    if storage
+      this.publish('annotationDeleted', [annotation])
     annotation
 
   # Public: Loads an Array of annotations into the @element. Breaks the task
@@ -425,15 +426,18 @@ class Annotator extends Delegator
       for old in store.annotations
         # Annotation updated
         if old.id == name
-          store.updateAnnotation old, annotation
           # Annotation was deleted
           if deleted != old.deleted
+            @deleteAnnotation(annotation, false)
+            store.updateAnnotation old, annotation
             return @publish "afterAnnotationDeleted", [annotation]
           # Annotation updated
           else
+            store.updateAnnotation old, annotation
             return @publish "afterAnnotationUpdated", [annotation]
 
       # Annotation is new let's create it
+      annotation = @setupAnnotation annotation
       store.registerAnnotation annotation
       store.updateAnnotation annotation, {}
       store.publish "afterAnnotationCreated", [annotation]

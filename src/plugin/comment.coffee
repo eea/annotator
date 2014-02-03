@@ -33,7 +33,7 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
       if replies.length > 0
         replylist = @annotator.element.find('.annotator-replies')
         for reply in replies
-          usertitle = reply.user.name or reply.user
+          usertitle = Util.userTitle(reply.user)
           username = Util.userString(reply.user)
           isoDate = reply.updated or reply.created
           if not isoDate.endsWith('Z')

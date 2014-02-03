@@ -245,10 +245,16 @@ class Annotator.Plugin.Store extends Annotator.Plugin
   #
   # Returns nothing.
   updateAnnotation: (annotation, data) ->
-    if annotation not in this.annotations
+    found = false
+    for old in @annotations
+      if old.id == annotation.id
+        $.extend old, annotation
+        $.extend annotation, data
+        found = true
+        break
+
+    if not found
       console.error Annotator._t("Trying to update unregistered annotation!")
-    else
-      $.extend(annotation, data)
 
     # Update the elements with our copies of the annotation objects (e.g.
     # with ids from the server).

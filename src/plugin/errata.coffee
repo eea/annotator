@@ -76,7 +76,7 @@ class Annotator.Erratum extends Delegator
   _setupComment: (annotation, onload=false) ->
     self = this
     textString = Util.escape(annotation.text)
-    userTitle = annotation.user.name or annotation.user
+    userTitle = Util.userTitle(annotation.user)
     userString = Util.userString(annotation.user)
     isoDate = annotation.created
     if not isoDate.endsWith('Z')
@@ -113,7 +113,7 @@ class Annotator.Erratum extends Delegator
 
     for reply in replies
       textString = Util.escape(reply.reply)
-      userTitle = reply.user.name or reply.user
+      userTitle = Util.userTitle(reply.user)
       userString = Util.userString(reply.user)
       isoDate = reply.updated or reply.created
       if not isoDate.endsWith('Z')
@@ -247,12 +247,17 @@ class Annotator.Erratum extends Delegator
     replyObject
 
   _reloadComment: (annotation, onload=false) ->
-    comment = @element.find('[data-id="' + annotation.id + '"]')
     self = this
-    collapsed_annotation = comment.parent().attr('collapsed-annotation')
-    if collapsed_annotation is annotation.id
-      comment.addClass('open');
+    comment = @element.find('[data-id="' + annotation.id + '"]')
+    parent = comment.parent()
+
+    openedAnnotation = parent.data('openedAnnotation')
+    if openedAnnotation is annotation.id
+      @element.find('.erratum-comment').slideUp('fast')
+      @element.find('.annotator-erratum').removeClass('open')
+      comment.addClass('open')
       comment.find('.erratum-comment').slideDown('fast')
+
     erratum_quote = comment.find('.erratum-quote')
     erratum_quote.unbind()
     erratum_quote.bind({
@@ -267,6 +272,9 @@ class Annotator.Erratum extends Delegator
           comment.addClass('open')
           comment.find('.erratum-comment').slideDown('fast')
           comment.find('.erratum-comment').trigger('commentCollapsed', [data])
+          parent.data('openedAnnotation', annotation.id)
+        else
+          parent.removeData('openedAnnotation')
         self.publish('afterClick', data)
     })
 
@@ -324,7 +332,6 @@ class Annotator.Erratum extends Delegator
     comment = @element.find('[data-id="' + annotation.id + '"]')
     if comment.length
       comment.slideUp( ->
-        comment.parent().attr('collapsed-annotation', comment.attr('data-id'))
         comment.remove()
       )
     @_setupComment(annotation)

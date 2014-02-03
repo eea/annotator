@@ -190,8 +190,23 @@ Util.dateString = (date) ->
   day + ' ' + hour + ':' + min
 
 Util.userString = (user) ->
-  if user.id
-    userString = '@' + user.id
+  if user
+    if user.id
+      userString = '@' + user.id
+    else
+      userString = '@' + user
   else
-    userString = user
+    userString = ''
   userString
+
+Util.userTitle = (user) ->
+  if user
+    if user.name
+      userTitle = user.name
+    else if user.id
+      userTitle = user.id
+    else
+      userTitle = user
+  else
+    userTitle = ''
+  userTitle
