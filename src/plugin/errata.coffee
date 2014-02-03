@@ -83,7 +83,7 @@ class Annotator.Erratum extends Delegator
     if not isoDate.endsWith('Z')
       isoDate += 'Z'
     published = new Date(isoDate)
-    dateString = Util.dateString(published)
+    dateString = Util.easyDate(published)
 
     div = $('''
       <div class="annotator-erratum annotator-item" data-id="''' + annotation.id + '''">
@@ -120,7 +120,8 @@ class Annotator.Erratum extends Delegator
       if not isoDate.endsWith('Z')
         isoDate += 'Z'
       published = new Date(isoDate)
-      dateString = Util.dateString(published)
+      # dateString = Util.dateString(published)
+      dateString = Util.easyDate(published)
       comment = $('''
         <dt class="replytext">''' + textString + '''</dt>
         <dd class="annotator-date" title="''' + published.toDateString() + '''">''' + dateString + '''</dd>

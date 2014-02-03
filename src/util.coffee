@@ -195,3 +195,54 @@ Util.userString = (user) ->
   else
     userString = user
   userString
+
+Util.easyDate = (date) ->
+  now = new Date()
+  delta = (now-date)/1000
+
+  if delta < 0
+    return 'just now'
+
+  # Minutes
+  if delta < 3300
+    min = parseInt(delta/60, 10)
+    return min + 'm'
+
+  # Hours
+  if delta < 72000
+    hours = parseInt(delta / 3600, 10)
+    return hours + 'h'
+
+  # Days
+  delta = delta / 3600
+  if delta < 48
+    return '1d'
+
+  if delta < 160
+    days = parseInt(delta / 24, 10)
+    return days + 'd'
+
+  # Weeks
+  if delta < 336
+    return '1w'
+
+  if delta < 720
+    weeks = parseInt(delta/24/7, 10)
+    return weeks + 'w'
+
+  # Months
+  delta = delta / 24
+  if delta < 60
+    return '1mo'
+
+  if delta < 360
+    months = parseInt(delta/30, 10)
+    return months + 'mo'
+
+  # Years
+  if delta < 720
+    return '1y'
+
+  if delta > 720
+    years = parseInt(delta/360, 10)
+    return years + 'y'
