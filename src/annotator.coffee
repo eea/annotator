@@ -428,13 +428,13 @@ class Annotator extends Delegator
         if old.id == name
           # Annotation was deleted
           if deleted != old.deleted
-            @deleteAnnotation(annotation, false)
+            @deleteAnnotation(old, false)
             store.updateAnnotation old, annotation
-            return @publish "afterAnnotationDeleted", [annotation]
+            return @publish "afterAnnotationDeleted", [old]
           # Annotation updated
           else
             store.updateAnnotation old, annotation
-            return @publish "afterAnnotationUpdated", [annotation]
+            return @publish "afterAnnotationUpdated", [old]
 
       # Annotation is new let's create it
       annotation = @setupAnnotation annotation
