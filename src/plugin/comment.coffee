@@ -39,7 +39,7 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
           if not isoDate.endsWith('Z')
             isoDate += 'Z'
           published = new Date(isoDate)
-          dateString = Util.dateString(published)
+          dateString = Util.easyDate(published)
           div = '''<div class='reply'>'''
           if not @annotator.options.readOnly
             if reply == replies[replies.length - 1]
@@ -51,7 +51,7 @@ class Annotator.Plugin.Comment extends Annotator.Plugin
               div += control
           div += '''
               <div class='replytext'>''' + reply.reply + '''</div>
-              <div class='annotator-date' title="''' + published.toDateString() + '''">''' + dateString + '''</div>
+              <div class='annotator-date' title="''' + Util.prettyDateString(published) + '''">''' + dateString + '''</div>
               <div class='annotator-user replyuser' title="''' + usertitle + '''">''' + username + '''</div>
             </div>'''
           $(replylist[idx]).append(div)
