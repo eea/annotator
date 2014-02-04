@@ -93,7 +93,7 @@ class Annotator.Erratum extends Delegator
           </button>
         </span>
         <div class="erratum-quote">
-          <span class="erratum-header-date" title="''' + published.toDateString() + '''">''' + dateString + '''</span>
+          <span class="erratum-header-date" title="''' + Util.prettyDateString(published) + '''">''' + dateString + '''</span>
           <span class="erratum-header-user" title="''' + userTitle + '''">''' + userString + '''</span>
           <span class="erratum-header-text">''' + textString + '''</span>
         </div>
@@ -124,7 +124,7 @@ class Annotator.Erratum extends Delegator
       dateString = Util.easyDate(published)
       comment = $('''
         <dt class="replytext">''' + textString + '''</dt>
-        <dd class="annotator-date" title="''' + published.toDateString() + '''">''' + dateString + '''</dd>
+        <dd class="annotator-date" title="''' + Util.prettyDateString(published) + '''">''' + dateString + '''</dd>
         <dd class="annotator-user" title="''' + userTitle + '''">''' + userString + '''</dd>
       ''')
       comment.appendTo(erratum)
