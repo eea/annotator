@@ -183,11 +183,13 @@ Util.checkTime = (time) ->
     time = "0" + time
   time
 
+
 Util.dateString = (date) ->
   day = @days[date.getDay()]
   hour = @checkTime(date.getHours())
   min = @checkTime(date.getMinutes())
   day + ' ' + hour + ':' + min
+
 
 Util.userString = (user) ->
   if user
@@ -198,6 +200,7 @@ Util.userString = (user) ->
   else
     userString = ''
   userString
+
 
 Util.userTitle = (user) ->
   if user
@@ -210,3 +213,77 @@ Util.userTitle = (user) ->
   else
     userTitle = ''
   userTitle
+
+
+Util.easyDate = (date) ->
+  now = new Date()
+  delta = (now-date)/1000
+  prefix = '~'
+
+  if delta < 60
+    return 'just now'
+
+  # Minutes
+  if delta < 120
+    return prefix + '1m ago'
+
+  if delta < 3300
+    min = parseInt(delta/60, 10)
+    return prefix + min + 'm ago'
+
+  # Hours
+  if delta < 7200
+    return prefix + '1h ago'
+
+  if delta < 72000
+    hours = parseInt(delta / 3600, 10)
+    return prefix + hours + 'h ago'
+
+  # Days
+  delta = delta / 3600
+  if delta < 48
+    return prefix + '1d ago'
+
+  if delta < 160
+    days = parseInt(delta / 24, 10)
+    return prefix + days + 'd ago'
+
+  # Weeks
+  if delta < 336
+    return prefix + '1w ago'
+
+  if delta < 720
+    weeks = parseInt(delta/24/7, 10)
+    return prefix + weeks + 'w ago'
+
+  # Months
+  delta = delta / 24
+  if delta < 60
+    return prefix + '1mo ago'
+
+  if delta < 360
+    months = parseInt(delta/30, 10)
+    return prefix + months + 'mo ago'
+
+  # Years
+  if delta < 720
+    return prefix + '1y ago'
+
+  if delta > 720
+    years = parseInt(delta/360, 10)
+    return prefix + years + 'y ago'
+
+
+Util.prettyDateString = (date) ->
+  weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday',
+              'Thursday', 'Friday', 'Saturday']
+  months = ['January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December']
+
+  day = weekdays[date.getDay()]
+  month = months[date.getMonth()]
+  day_in_month = date.getDate()
+  year = date.getFullYear()
+  hour = date.toTimeString().split(' ')[0]
+
+  return day + ', ' + day_in_month + ' ' + month + ' ' + year + ' at ' + hour
