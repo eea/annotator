@@ -538,6 +538,11 @@ class Annotator extends Delegator
   #
   # Returns itself to allow chaining.
   showEditor: (annotation, location) =>
+    highlights = $(annotation.highlights)
+    position = highlights.position()
+    if position.top != location.top
+      location.top = position.top
+
     @editor.element.css(location)
     @editor.load(annotation)
     this.publish('annotationEditorShown', [@editor, annotation])
