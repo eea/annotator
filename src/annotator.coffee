@@ -540,8 +540,9 @@ class Annotator extends Delegator
   showEditor: (annotation, location) =>
     highlights = $(annotation.highlights)
     position = highlights.position()
-    if position.top != location.top
-      location.top = position.top
+    top = if position then position.top else location.top
+    if top isnt location.top
+      location.top = top
 
     @editor.element.css(location)
     @editor.load(annotation)
