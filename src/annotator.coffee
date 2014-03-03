@@ -581,6 +581,9 @@ class Annotator extends Delegator
   #
   # Returns itself to allow chaining.
   showViewer: (annotations, location) =>
+    if @editor.isShown()
+      return false
+
     @viewer.element.css(location)
 
     toShow = $.grep(annotations, (annotation, idx) -> not annotation.deleted )
