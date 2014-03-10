@@ -115,7 +115,12 @@ Range.nodeFromXPath = (xpath, root=document, matchText=null, offset=null, otype=
       node = null
 
   if not node and matchText
-    xp = xpath.replace(/\[[0-9]+\]/g, "").replace(/\//g, " ")
+    # Remove counts
+    xp = xpath.replace(/\[[0-9]+\]/g, "").replace(/\//g, " ").trim()
+
+    # Remove strong, b, em, i
+    xp = xp.replace(/\sstrong$/g, '').replace(/\sb$/g, '').replace('\sem$/g', '').replace('\si$/g', '')
+
     node = $(root).find("#{xp}").filter( ->
       text = $(this).text().toLowerCase().replace(/\xA0/g, " ")
       text.indexOf(matchText) != -1
