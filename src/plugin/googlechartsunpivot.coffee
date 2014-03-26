@@ -32,7 +32,7 @@ class Annotator.Plugin.EEAGoogleChartsUnpivotAnnotation extends Annotator.Plugin
         $(".googlechartAnnotationEditorTable").html("")
         $(".googlechartAnnotationViewerTable").remove()
         $("<table>")
-            .attr("style", "position:absolute; left:10px; top:-95px;")
+            .attr("style", "position:relative; left:10px; top:-95px;")
             .addClass("googlechartAnnotationEditorTable")
             .appendTo(obj)
         $("<tr>")
@@ -60,7 +60,7 @@ class Annotator.Plugin.EEAGoogleChartsUnpivotAnnotation extends Annotator.Plugin
             .text("Column Name")
             .appendTo(".googlechartAnnotationColumnName")
         $("<td>")
-            .html("<input type='text' style='padding:3px;margin-top:5px; margin-bottom:5px;'>")
+            .html("<input type='text' style='padding:3px;margin-top:0px; height:30px; margin-bottom:5px;border:1px solid #cccccc'>")
             .appendTo(".googlechartAnnotationColumnName")
 
         $("<tr>")
