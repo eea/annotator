@@ -107,6 +107,8 @@ Range.nodeFromXPath = (xpath, root=document, matchText=null, offset=null, otype=
   if node and matchText
     text = $(node).text().toLowerCase().replace(/\xA0/g, " ")
     newOffset = text.indexOf(matchText)
+    $(node).removeData(otype + 'Offset')
+
     if otype == 'end'
       newOffset += matchText.length
     if newOffset == -1
