@@ -21,11 +21,15 @@ class Annotator extends Delegator
 
   html:
     adder:   '<div class="annotator-adder"><button>' + _t('Annotate') + '</button></div>'
+    adderWarning: '<div class="annotator-adder-warning"></div>'
     wrapper: '<div class="annotator-wrapper"></div>'
+
 
   options: # Configuration options
     readOnly: false # Start Annotator in read-only mode. No controls will be shown.
     exactMatch: false
+    noDuplicates: false
+    minWords: 0
 
   plugins: {}
 
@@ -76,6 +80,7 @@ class Annotator extends Delegator
 
     # Create adder
     this.adder = $(this.html.adder).appendTo(@wrapper).hide()
+    this.adderWarning = $(this.html.adderWarning).appendTo(@wrapper).hide()
 
     Annotator._instances.push(this)
 
@@ -611,6 +616,28 @@ class Annotator extends Delegator
     clearTimeout(@viewerHideTimer)
     @viewerHideTimer = false
 
+  # Validate that selected text is suitable for inline comment
+  #
+  # Returns error message or nothing
+  checkForErrors: (event) =>
+    selection = $.trim ( @selectedRanges[0].text() )
+    words = selection.replace(/(?:\r\n|\r|\n)/g, ' ').split(' ');
+    minWords = @options.minWords
+    if words.length < minWords
+      return "Select at least #{minWords} words to add a comment."
+
+    noDuplicates = @options.noDuplicates
+    if not noDuplicates
+      return
+
+    text = @wrapper.text()
+    pattern = RegExp(selection, 'gim')
+    count = text.match(pattern)
+    if count and count.length > 1
+      return "Multiple occurences of selection (#{count.length}). Refine it to add a comment."
+
+    return
+
   # Annotator#element callback. Sets the @mouseIsDown property used to
   # determine if a selection may have started to true. Also calls
   # Annotator#startViewerHideTimer() to hide the Annotator#viewer.
@@ -648,9 +675,17 @@ class Annotator extends Delegator
       return if this.isAnnotator(container)
 
     if event and @selectedRanges.length
-      @adder
-        .css(Util.mousePosition(event, @wrapper[0]))
-        .show()
+      errors = @checkForErrors(event)
+      if errors
+        @adder.hide()
+        @adderWarning
+            .text(errors)
+            .css(Util.mousePosition(event, @wrapper[0]))
+            .fadeIn().delay(2000).fadeOut()
+      else
+        @adder
+          .css(Util.mousePosition(event, @wrapper[0]))
+          .show()
     else
       @adder.hide()
 
