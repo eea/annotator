@@ -634,7 +634,7 @@ class Annotator extends Delegator
     pattern = RegExp(selection, 'gim')
     count = text.match(pattern)
     if count and count.length > 1
-      return "Multiple occurences of selection (#{count.length}). Refine it to add a comment."
+      return "Multiple occurrences of selection (#{count.length}). Refine it to add a comment."
 
     return
 
