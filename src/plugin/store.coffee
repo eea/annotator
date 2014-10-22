@@ -398,6 +398,10 @@ class Annotator.Plugin.Store extends Annotator.Plugin
       error:      this._onError
     }
 
+    authenticator = @annotator.options.authenticator
+    if authenticator
+      opts.headers = $.extend(opts.headers, {'X-CSRF-TOKEN': authenticator})
+
     # If emulateHTTP is enabled, we send a POST and put the real method in an
     # HTTP request header.
     if @options.emulateHTTP and method in ['PUT', 'DELETE']

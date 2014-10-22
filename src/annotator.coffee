@@ -29,6 +29,7 @@ class Annotator extends Delegator
     readOnly: false # Start Annotator in read-only mode. No controls will be shown.
     exactMatch: false
     noDuplicates: false
+    authenticator: ""
     minWords: 0
 
   plugins: {}
