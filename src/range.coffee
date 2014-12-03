@@ -8,8 +8,10 @@ if typeof  String.prototype.endsWith isnt "function"
   String.prototype.endsWith = (str) ->
     this.slice(-str.length) == str
 
-Range = {}
-Range.prototype = {}
+# Avoid conflicts
+if window.Range == undefined
+  Range = {}
+  Range.prototype = {}
 
 # Public: Determines the type of Range of the provided object and returns
 # a suitable Range instance.
