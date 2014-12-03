@@ -9,6 +9,7 @@ if typeof  String.prototype.endsWith isnt "function"
     this.slice(-str.length) == str
 
 Range = {}
+Range.prototype = {}
 
 # Public: Determines the type of Range of the provided object and returns
 # a suitable Range instance.
