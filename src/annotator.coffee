@@ -632,7 +632,7 @@ class Annotator extends Delegator
       return
 
     text = @wrapper.text()
-    pattern = RegExp(selection, 'gim')
+    pattern = RegExp(Util.escapeRegExp(selection), 'gim')
     count = text.match(pattern)
     if count and count.length > 1
       return "Multiple occurrences of selection (#{count.length}). Refine it to add a comment."

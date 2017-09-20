@@ -287,3 +287,6 @@ Util.prettyDateString = (date) ->
   hour = date.toTimeString().split(' ')[0]
 
   return day + ', ' + day_in_month + ' ' + month + ' ' + year + ' at ' + hour
+
+Util.escapeRegExp = (str) ->
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
